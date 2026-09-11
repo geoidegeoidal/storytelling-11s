@@ -21,12 +21,13 @@ Instagram (y similares).
 
 **Hecho**:
 - `EN_APP` (detección por User-Agent: Instagram/FB/TikTok/Line).
-- En in-app **no se intenta reproducir audio**: la pantalla de entrada cambia a
-  un aviso ("Mejor experiencia en tu navegador") que recomienda abrir en
-  Chrome/Edge/Safari. "Abrir en el navegador" copia el enlace (clipboard +
-  fallback), intenta el esquema `intent://…com.android.chrome` en Android y
-  muestra los pasos ("menú ⋮/••• → Abrir en Chrome/Safari"); "Seguir sin sonido"
-  cierra el aviso. No se puede forzar el navegador externo por código.
+- En in-app **no se intenta reproducir audio ni abrir el navegador externo** (los
+  WebView no lo permiten). La pantalla de entrada pasa a un aviso: título "Mejor
+  experiencia en otro navegador", recomendación de abrirlo en Chrome/Edge/Safari,
+  **flecha animada ↗ «Menú»** apuntando al menú de la app y el texto de los pasos
+  ("menú ⋮/••• → Abrir en Chrome/Safari"). Un único botón "Seguir leyendo" cierra.
+- Trampa CSS: `[hidden]` no oculta elementos que tienen `display` propio
+  (`.entrada__btn`), hay que agregar `.clase[hidden]{display:none}`.
 - Se descartó el reproductor in-app (visible y luego transparente): se veía mal.
 - Verificado con Chrome emulando UA de Instagram + viewport 390×844: overlay con
   el aviso, sin reproductor y sin overflow (scrollW 390).

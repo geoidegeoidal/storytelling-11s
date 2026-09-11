@@ -369,43 +369,6 @@ function armarDesbloqueo() {
   eventos.forEach((e) => window.addEventListener(e, once, { passive: true }));
 }
 
-function copiarEnlace(texto) {
-  try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(texto);
-      return true;
-    }
-  } catch { /* noop */ }
-  try {
-    const ta = document.createElement("textarea");
-    ta.value = texto;
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.focus();
-    ta.select();
-    const ok = document.execCommand("copy");
-    ta.remove();
-    return ok;
-  } catch {
-    return false;
-  }
-}
-
-function abrirExterno() {
-  const url = location.href;
-  copiarEnlace(url);
-  try {
-    if (/Android/i.test(navigator.userAgent)) {
-      const sin = url.replace(/^https?:\/\//, "");
-      window.location.href =
-        `intent://${sin}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(url)};end`;
-    } else {
-      window.open(url, "_blank", "noopener");
-    }
-  } catch { /* noop */ }
-}
-
 function mostrarEntrada() {
   if (!ENTRADA) return;
   ENTRADA.hidden = false;
@@ -418,28 +381,23 @@ function mostrarEntrada() {
     const p = ENTRADA.querySelector(".entrada__texto");
     const n = ENTRADA.querySelector(".entrada__nota");
     const pasos = document.getElementById("entrada-pasos");
+    const sena = document.getElementById("entrada-sena");
     const android = /Android/i.test(navigator.userAgent);
-    if (t) t.textContent = "Mejor experiencia en tu navegador";
+    if (t) t.textContent = "Mejor experiencia en otro navegador";
     if (p) {
       p.textContent =
-        "Estás viendo esto dentro de Instagram. Para escuchar la música y el último discurso de Allende, abrí este enlace en Chrome, Edge o Safari.";
+        "Estás viendo esto dentro de Instagram. Para ver los mapas en detalle y escuchar la música y el último discurso de Allende, ábrelo en Chrome, Edge o Safari.";
     }
-    if (n) n.textContent = "También puedes seguir leyendo sin sonido.";
+    if (n) n.hidden = true;
+    if (sena) sena.hidden = false;
     if (pasos) {
       pasos.textContent = android
-        ? "Si no se abrió solo: tocá el menú ⋮ de arriba y elegí «Abrir en Chrome». El enlace ya quedó copiado."
-        : "Si no se abrió solo: tocá ••• o el ícono de compartir (arriba) y elegí «Abrir en Safari». El enlace ya quedó copiado.";
+        ? "Toca el menú ⋮ de arriba a la derecha y elige «Abrir en Chrome»."
+        : "Toca el menú ••• de arriba a la derecha y elige «Abrir en Safari».";
     }
-    if (si) {
-      si.textContent = "Abrir en el navegador";
-      si.addEventListener("click", () => {
-        abrirExterno();
-        if (pasos) pasos.hidden = false;
-      });
-      si.focus();
-    }
+    if (si) si.hidden = true;
     if (no) {
-      no.textContent = "Seguir sin sonido";
+      no.textContent = "Seguir leyendo";
       no.addEventListener("click", cerrarEntrada);
     }
     return;
