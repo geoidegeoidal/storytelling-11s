@@ -2,6 +2,7 @@ const AVISO = document.getElementById("aviso");
 const ESCENAS = document.getElementById("escenas");
 const BARRA = document.getElementById("progress");
 const HUD_HORA = document.getElementById("hud-hora");
+const ENTRADA = document.getElementById("entrada");
 const CUENTA = "@conmapas";
 
 /* Música de fondo: pegá el link de YouTube o el ID del video.
@@ -336,25 +337,39 @@ function armarDesbloqueo() {
   eventos.forEach((e) => window.addEventListener(e, once, { passive: true }));
 }
 
-async function arrancarAudio() {
-  if (!sonidoActivo) {
-    actualizarBoton();
-    return;
+function mostrarEntrada() {
+  if (!ENTRADA) return;
+  ENTRADA.hidden = false;
+  document.body.classList.add("entrada-abierta");
+  const si = document.getElementById("entrada-si");
+  const no = document.getElementById("entrada-no");
+  if (si) {
+    si.addEventListener("click", () => {
+      sonidoActivo = true;
+      document.body.classList.add("sonido-on");
+      desbloquear();
+      cerrarEntrada();
+    });
+    si.focus();
   }
-  let ok = false;
-  if (musica) ok = await musica.play();
-  if (escenaDiscurso) ok = (await reproducirDiscurso(escenaDiscurso)) || ok;
-  if (ok) {
-    desbloqueado = true;
-    document.body.classList.add("sonido-on");
-    ocultarPista();
-    if (musica && !escenaDiscurso) fadeFuente(musica, VOL_MUSICA, 900);
-  } else {
-    mostrarPista();
-    armarDesbloqueo();
+  if (no) {
+    no.addEventListener("click", () => {
+      sonidoActivo = false;
+      document.body.classList.remove("sonido-on");
+      actualizarBoton();
+      actualizarNotas();
+      cerrarEntrada();
+    });
   }
-  actualizarBoton();
-  actualizarNotas();
+}
+
+function cerrarEntrada() {
+  if (!ENTRADA) return;
+  ENTRADA.classList.add("entrada--fuera");
+  document.body.classList.remove("entrada-abierta");
+  setTimeout(() => {
+    ENTRADA.hidden = true;
+  }, 520);
 }
 
 function toggleSonido() {
@@ -411,7 +426,6 @@ async function montarSonido() {
   }
 
   actualizarBoton();
-  arrancarAudio();
 }
 
 /* ---------- Observers ---------- */
@@ -530,6 +544,9 @@ async function iniciar() {
   activarReveal();
   activarProgreso();
   await montarSonido();
+
+  if (musica || hayFuenteEscena) mostrarEntrada();
+  else if (ENTRADA) ENTRADA.remove();
 
   if (location.hash) {
     const destino = document.getElementById(location.hash.slice(1));

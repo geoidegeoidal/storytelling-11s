@@ -65,6 +65,9 @@ Instagram (cuenta de conmapas) y los relatos que los acompañan.
   autoplay), arranca con el **primer gesto** en cualquier parte (clic, tecla o
   toque); la pista "Tocá para activar el sonido" desaparece al desbloquear. El
   botón flotante es solo un mute/unmute.
+- Al abrir, si hay audio, aparece una **pantalla de entrada** ("Entrar con
+  sonido" / "Entrar en silencio"). El clic en la primera es el gesto que
+  desbloquea el audio y arranca la música; la segunda entra muteado.
 - El discurso suena al centrar su escena y **sigue hasta el final** (no se pausa
   al scrollear); baja la música (duck) mientras dura y la música vuelve al
   terminar (o al mutear).
