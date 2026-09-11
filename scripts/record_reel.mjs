@@ -2,11 +2,14 @@
 /*
  Graba un reel vertical (1080x1920) recorriendo el sitio.
 
+ Por defecto hace PARADAS: se detiene en la portada, la bajada, cada escena y el
+ cierre (para poder mirar el mapa y leer), y transiciona entre paradas.
+
  Uso:
    node scripts/record_reel.mjs [--url http://localhost:8000/] [--out reel-11s.mp4]
-                                [--ffmpeg <ruta-al-binario>] [--dur 24]
+                                [--ffmpeg <ruta>] [--hold 4.5] [--trans 0.9]
 
- Requiere Chrome y ffmpeg (por ejemplo el binario de ffmpeg-static).
+ Requiere Chrome y ffmpeg (p. ej. el binario de ffmpeg-static).
  Usa WebSocket nativo de Node 22 + Chrome DevTools Protocol: sin dependencias.
 */
 import { spawn } from "node:child_process";
@@ -24,10 +27,9 @@ const args = Object.fromEntries(
 const URL = args.url || "http://localhost:8000/";
 const OUT = path.resolve(args.out || "reel-11s.mp4");
 const FFMPEG = args.ffmpeg || "ffmpeg";
-const DUR = Number(args.dur || 36);
+const HOLD = Number(args.hold || 4.5);
+const TRANS = Number(args.trans || 0.9);
 const FPS = 30;
-const HOLD_IN = 3;
-const HOLD_OUT = 3;
 const W = 540;
 const H = 960;
 const DSF = 2;
@@ -71,9 +73,6 @@ function conectar(wsUrl) {
         },
         on(metodo, cb) { eventos.push([metodo, cb]); },
         cerrar() { try { ws.close(); } catch { /* noop */ } },
-        _ws: ws,
-        _pend: pend,
-        _eventos: eventos,
       });
     ws.onerror = (e) => reject(new Error("WS error: " + (e.message || "")));
     ws.onmessage = (ev) => {
@@ -153,14 +152,29 @@ async function main() {
   });
 
   const maxScroll = await evaluar(() => document.documentElement.scrollHeight - window.innerHeight);
-  const total = Math.round(FPS * HOLD_IN) + Math.round(FPS * DUR) + 1 + Math.round(FPS * HOLD_OUT);
-  console.log(`Altura: ${maxScroll}px · frames: ${total}`);
+  const paradas = await evaluar(() => {
+    const y = (el) => el.getBoundingClientRect().top + window.scrollY;
+    const out = [0];
+    const intro = document.querySelector(".intro");
+    if (intro) out.push(y(intro));
+    document.querySelectorAll(".scene").forEach((s) => out.push(y(s)));
+    const closing = document.querySelector(".closing");
+    if (closing) out.push(y(closing));
+    return out;
+  });
 
+  const pos = paradas.map((y) => Math.min(Math.max(0, Math.round(y)), maxScroll));
   const pasos = [];
-  for (let i = 0; i < FPS * HOLD_IN; i++) pasos.push(0);
-  const N = Math.round(FPS * DUR);
-  for (let i = 0; i <= N; i++) pasos.push(Math.round(easeInOut(i / N) * maxScroll));
-  for (let i = 0; i < FPS * HOLD_OUT; i++) pasos.push(maxScroll);
+  for (let i = 0; i < pos.length; i++) {
+    for (let k = 0; k < Math.round(FPS * HOLD); k++) pasos.push(pos[i]);
+    if (i < pos.length - 1) {
+      const nt = Math.round(FPS * TRANS);
+      for (let k = 1; k <= nt; k++) {
+        pasos.push(Math.round(pos[i] + (pos[i + 1] - pos[i]) * easeInOut(k / nt)));
+      }
+    }
+  }
+  console.log(`Paradas: ${pos.length} · hold ${HOLD}s · frames: ${pasos.length} (~${(pasos.length / FPS).toFixed(1)}s)`);
 
   let n = 0;
   for (const y of pasos) {
@@ -169,7 +183,7 @@ async function main() {
     const shot = await cdp.send("Page.captureScreenshot", { format: "jpeg", quality: 90 });
     fs.writeFileSync(path.join(FRAMES, `f${String(n + 1).padStart(5, "0")}.jpg`), Buffer.from(shot.data, "base64"));
     n++;
-    if (n % 60 === 0) console.log(`  ${n}/${pasos.length}`);
+    if (n % 120 === 0) console.log(`  ${n}/${pasos.length}`);
   }
 
   cdp.cerrar();

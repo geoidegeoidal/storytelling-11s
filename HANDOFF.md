@@ -23,9 +23,10 @@ Instagram.
 - `scripts/record_reel.mjs`: graba el recorrido con Chrome DevTools Protocol
   (WebSocket nativo de Node 22, sin dependencias), captura frames por
   `Page.captureScreenshot` y codifica con ffmpeg.
-- Salida `reel-11s.mp4`: 1080×1920, 30 fps, 42 s, SAR 1:1, ~52 MB (recorrido
-  lento; default del script `--dur 36`). Oculta la pantalla de entrada, el botón
-  de sonido y la pista durante la grabación.
+- Salida `reel-11s.mp4`: 1080×1920, 30 fps, **64 s**, SAR 1:1, ~30 MB. El
+  grabador ahora hace **paradas** (se detiene en cada escena para leer/mirar el
+  mapa; `--hold`/`--trans`), en vez del scroll continuo que iba demasiado rápido.
+  Oculta la pantalla de entrada, el botón de sonido y la pista durante la grabación.
 - Responsividad: la fila hora + "Ver en Instagram" se desbordaba en móvil y la
   hora larga se cortaba en desktop. Se apiló el meta (hora arriba, enlace abajo).
   Verificado sin overflow (overflow 0) a 390×844 emulado.
