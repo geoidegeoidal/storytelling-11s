@@ -130,6 +130,41 @@ de Instagram). Ajustable con `--hold` (pausa por escena) y `--trans` (transició
 
 ---
 
+## Cómo citar
+
+Si usás o referenciás este trabajo, podés citarlo así (reemplazá la fecha de consulta):
+
+**Storytelling (sitio):**
+
+> Ulloa, J. (2024). *11 de septiembre de 1973 — Relato hora a hora* [Storytelling web]. ConMapas. https://geoidegeoidal.github.io/storytelling-11s/ (consultado el [día/mes/año])
+
+**Mapas y relatos originales:**
+
+> Ulloa, J. (2024). *ConMapas* [Mapas y relatos sobre el golpe de Estado de 1973]. Instagram. https://www.instagram.com/conmapas/
+
+**Código fuente:**
+
+> Ulloa, J. (2024). *storytelling-11s* [Software]. GitHub. https://github.com/geoidegeoidal/storytelling-11s
+
+**BibTeX:**
+
+```bibtex
+@misc{ulloa2024_11s,
+  title        = {11 de septiembre de 1973 — Relato hora a hora},
+  author       = {Ulloa, Jorge},
+  year         = {2024},
+  howpublished = {Storytelling web},
+  note         = {Mapas y relatos de ConMapas},
+  url          = {https://geoidegeoidal.github.io/storytelling-11s/}
+}
+```
+
+En trabajos académicos, si citás **hechos o relatos** del especial, acreditá a
+ConMapas / Jorge Ulloa; si citás **el sitio o su código**, usá alguna de las
+referencias de arriba.
+
+---
+
 ## Créditos y uso
 
 - **Mapas y relatos:** elaborados por **Jorge Ulloa** ([@conmapas](https://www.instagram.com/conmapas/)).
