@@ -475,6 +475,32 @@ body.sonido-on .scene__discurso::before { animation: pulse 1.7s ease-out infinit
   50% { height: 13px; }
 }
 
+.pista-sonido {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(1rem, 3vw, 2rem);
+  transform: translateX(-50%);
+  z-index: 55;
+  padding: 0.65rem 1.1rem;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: rgba(18, 17, 22, 0.85);
+  backdrop-filter: blur(10px);
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  animation: pistaPulse 2.2s ease-in-out infinite;
+}
+.pista-sonido:hover,
+.pista-sonido:focus-visible { color: var(--accent); border-color: var(--accent); }
+@keyframes pistaPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
 @media (max-width: 900px) {
   .scene,
   .scene--flip { grid-template-columns: 1fr; }
@@ -514,4 +540,5 @@ body.sonido-on .scene__discurso::before { animation: pulse 1.7s ease-out infinit
   .intro__title::before { transform: none; transition: none; }
   .hud__now.flip { animation: none; }
   .sonido.is-on .sonido__icono i { animation: none; height: 9px; }
+  .pista-sonido { animation: none; }
 }

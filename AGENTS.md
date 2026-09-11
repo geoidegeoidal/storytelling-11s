@@ -61,6 +61,12 @@ Instagram (cuenta de conmapas) y los relatos que los acompañan.
     `audio_embed` de la entrada. Vía recomendada por derechos de autor.
   - **Archivo local**: `audio/musica.mp3` (fondo, loop) y `audio/ultimo-discurso.mp3`.
 - Si no hay fuente configurada, el control y la nota se ocultan solos.
+- El audio intenta autoplay al cargar. Si el navegador lo bloquea (política de
+  autoplay), arranca con el **primer gesto** en cualquier parte (clic, tecla o
+  toque); la pista "Tocá para activar el sonido" desaparece al desbloquear. El
+  botón flotante es solo un mute/unmute.
+- El discurso suena al centrar su escena y baja la música (duck); al salir se
+  pausa y la música vuelve.
 - No se versionan audios con derechos; el embed delega la licencia en YouTube.
 
 ## Publicación

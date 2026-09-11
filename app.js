@@ -13,8 +13,12 @@ const VOL_DISCURSO = 0.95;
 
 let entradas = [];
 let musica = null;
-let sonidoActivo = false;
+let sonidoActivo = true;
+let desbloqueado = false;
+let bloqueoArmado = false;
+let hayFuenteEscena = false;
 let botonSonido = null;
+let pistaSonido = null;
 let escenaDiscurso = null;
 let ytListo = null;
 
@@ -93,7 +97,7 @@ function escena(e, flip) {
   texto.append(meta);
 
   if (sec._audioConfig) {
-    const nota = el("p", "scene__discurso", "Discurso · activá el sonido");
+    const nota = el("p", "scene__discurso", "Tocá para activar el sonido");
     nota.hidden = true;
     texto.appendChild(nota);
   }
@@ -139,7 +143,12 @@ function fuenteArchivo(src) {
   a.volume = 0;
   let vol = 0;
   return {
-    play() { a.play().catch(() => {}); },
+    play() {
+      return a
+        .play()
+        .then(() => true)
+        .catch(() => false);
+    },
     pause() { a.pause(); },
     vol(v) { vol = Math.max(0, Math.min(1, v)); a.volume = vol; },
     get v() { return vol; },
@@ -194,7 +203,20 @@ async function fuenteYT(id, loop) {
     if (e.data === 0 && fin) fin();
   });
   return {
-    play() { try { player.playVideo(); } catch { /* aún no listo */ } },
+    play() {
+      return new Promise((resolve) => {
+        try {
+          player.playVideo();
+        } catch {
+          return resolve(false);
+        }
+        setTimeout(() => {
+          let estado = -1;
+          try { estado = player.getPlayerState(); } catch { estado = -1; }
+          resolve(estado === 1 || estado === 3);
+        }, 800);
+      });
+    },
     pause() { try { player.pauseVideo(); } catch { /* aún no listo */ } },
     vol(v) { vol = Math.max(0, Math.min(1, v)); try { player.setVolume(Math.round(vol * 100)); } catch { /* aún no listo */ } },
     get v() { return vol; },
@@ -236,23 +258,47 @@ function setHora(txt) {
 function actualizarNotas() {
   document.querySelectorAll(".scene__discurso").forEach((n) => {
     const sec = n.closest(".scene");
-    const f = sec._fuente;
-    const suena = sonidoActivo && f && escenaDiscurso === sec;
-    n.textContent = !sonidoActivo
-      ? "Discurso · activá el sonido"
-      : suena
+    const suena = sonidoActivo && desbloqueado && escenaDiscurso === sec;
+    n.textContent = suena
       ? "Reproduciendo el último discurso"
-      : "El discurso suena al llegar a esta escena";
+      : desbloqueado
+      ? "El discurso suena al llegar a esta escena"
+      : "Discurso · tocá para activar el sonido";
   });
 }
 
-function reproducirDiscurso(sec) {
+function actualizarBoton() {
+  if (!botonSonido) return;
+  botonSonido.hidden = !(musica || hayFuenteEscena);
+  botonSonido.classList.toggle("is-on", sonidoActivo && desbloqueado);
+  botonSonido.setAttribute("aria-pressed", String(sonidoActivo));
+  const t = botonSonido.querySelector(".sonido__texto");
+  if (t) t.textContent = sonidoActivo ? "Sonido" : "Silencio";
+}
+
+function mostrarPista() {
+  if (pistaSonido || desbloqueado) return;
+  pistaSonido = el("button", "pista-sonido", "Tocá para activar el sonido");
+  pistaSonido.type = "button";
+  pistaSonido.addEventListener("click", desbloquear);
+  document.body.appendChild(pistaSonido);
+}
+
+function ocultarPista() {
+  if (pistaSonido) {
+    pistaSonido.remove();
+    pistaSonido = null;
+  }
+}
+
+async function reproducirDiscurso(sec) {
   const f = sec && sec._fuente;
-  if (!f) return;
-  f.play();
+  if (!f) return false;
+  const ok = await f.play();
   fadeFuente(f, VOL_DISCURSO, 900);
   if (musica) fadeFuente(musica, VOL_MUSICA_DUCK, 900);
   actualizarNotas();
+  return ok;
 }
 
 function pausarDiscurso(sec) {
@@ -265,46 +311,80 @@ function pausarDiscurso(sec) {
   actualizarNotas();
 }
 
+async function desbloquear() {
+  desbloqueado = true;
+  document.body.classList.add("sonido-on");
+  ocultarPista();
+  actualizarBoton();
+  if (!sonidoActivo) return;
+  if (musica) {
+    const ok = await musica.play();
+    fadeFuente(musica, escenaDiscurso ? VOL_MUSICA_DUCK : VOL_MUSICA, ok ? 900 : 0);
+  }
+  if (escenaDiscurso) reproducirDiscurso(escenaDiscurso);
+  actualizarNotas();
+}
+
+function armarDesbloqueo() {
+  if (bloqueoArmado) return;
+  bloqueoArmado = true;
+  const eventos = ["pointerdown", "keydown", "touchstart"];
+  const once = () => {
+    eventos.forEach((e) => window.removeEventListener(e, once));
+    desbloquear();
+  };
+  eventos.forEach((e) => window.addEventListener(e, once, { passive: true }));
+}
+
+async function arrancarAudio() {
+  if (!sonidoActivo) {
+    actualizarBoton();
+    return;
+  }
+  let ok = false;
+  if (musica) ok = await musica.play();
+  if (escenaDiscurso) ok = (await reproducirDiscurso(escenaDiscurso)) || ok;
+  if (ok) {
+    desbloqueado = true;
+    document.body.classList.add("sonido-on");
+    ocultarPista();
+    if (musica && !escenaDiscurso) fadeFuente(musica, VOL_MUSICA, 900);
+  } else {
+    mostrarPista();
+    armarDesbloqueo();
+  }
+  actualizarBoton();
+  actualizarNotas();
+}
+
 function toggleSonido() {
   sonidoActivo = !sonidoActivo;
-  document.body.classList.toggle("sonido-on", sonidoActivo);
-  botonSonido.setAttribute("aria-pressed", String(sonidoActivo));
-  botonSonido.classList.toggle("is-on", sonidoActivo);
-  botonSonido.querySelector(".sonido__texto").textContent = sonidoActivo
-    ? "Sonido activado"
-    : "Activar sonido";
   if (sonidoActivo) {
-    if (musica) {
-      musica.play();
-      fadeFuente(musica, escenaDiscurso ? VOL_MUSICA_DUCK : VOL_MUSICA, 900);
-    }
-    if (escenaDiscurso) reproducirDiscurso(escenaDiscurso);
+    desbloquear();
   } else {
+    document.body.classList.remove("sonido-on");
     if (musica) fadeFuente(musica, 0, 400);
     pausarDiscurso(escenaDiscurso);
   }
+  actualizarBoton();
   actualizarNotas();
 }
 
 async function montarSonido() {
   botonSonido = el("button", "sonido");
   botonSonido.type = "button";
-  botonSonido.setAttribute("aria-pressed", "false");
+  botonSonido.setAttribute("aria-pressed", "true");
   botonSonido.innerHTML =
     '<span class="sonido__icono" aria-hidden="true"><i></i><i></i><i></i><i></i></span>' +
-    '<span class="sonido__texto">Activar sonido</span>';
+    '<span class="sonido__texto">Sonido</span>';
   botonSonido.addEventListener("click", toggleSonido);
   botonSonido.hidden = true;
   document.body.appendChild(botonSonido);
 
-  let hayAudio = false;
-
   if (YT_MUSICA) {
     musica = await fuenteYT(YT_MUSICA, true);
-    hayAudio = true;
   } else if (await archivoExiste("audio/musica.mp3")) {
     musica = fuenteArchivo("audio/musica.mp3");
-    hayAudio = true;
   }
 
   for (const sec of ESCENAS.querySelectorAll(".scene")) {
@@ -326,12 +406,12 @@ async function montarSonido() {
       sec._fuente = fuente;
       const nota = sec.querySelector(".scene__discurso");
       if (nota) nota.hidden = false;
-      hayAudio = true;
+      hayFuenteEscena = true;
     }
   }
 
-  botonSonido.hidden = !hayAudio;
-  actualizarNotas();
+  actualizarBoton();
+  arrancarAudio();
 }
 
 /* ---------- Observers ---------- */
@@ -366,7 +446,18 @@ function activarReveal() {
           if (sonidoActivo && escenaDiscurso !== sec) {
             if (escenaDiscurso) pausarDiscurso(escenaDiscurso);
             escenaDiscurso = sec;
-            reproducirDiscurso(sec);
+            reproducirDiscurso(sec).then((ok) => {
+              if (ok) {
+                desbloqueado = true;
+                document.body.classList.add("sonido-on");
+                ocultarPista();
+              } else {
+                mostrarPista();
+                armarDesbloqueo();
+              }
+              actualizarBoton();
+              actualizarNotas();
+            });
           } else {
             escenaDiscurso = sec;
           }
