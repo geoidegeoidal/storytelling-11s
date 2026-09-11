@@ -7,10 +7,10 @@
 
 ## Sesión actual / próxima
 
-**Estado**: Textos reescritos (sin emojis/hashtags), animaciones y sistema de
-audio agregados. Publicado en GitHub Pages. El audio queda inactivo hasta que
-el usuario aporte `audio/musica.mp3` y `audio/ultimo-discurso.mp3` (obras con
-derechos: no se versionan). Falta archivar el change de openspec.
+**Estado**: Textos reescritos, animaciones suaves y audio configurado con
+embeds de YouTube (música `6TvCfFvPdWs`, discurso `kd0v4WKPKGI`; ambos permiten
+embed). Publicado en GitHub Pages. Falta que el usuario valide reproducción en
+un navegador real y archivar el change de openspec.
 
 ## Historial de sesiones
 
@@ -49,7 +49,8 @@ música de fondo + el discurso de Allende en su escena.
   opacidad+transform.
 
 **Próxima sesión**:
-- Pegar el ID de YouTube (`YT_MUSICA` y `audio_embed`) y validar en navegador.
+- Validar reproducción/ducking en un navegador real (autoplay requiere un clic
+  en "Activar sonido").
 - `openspec archive add-storytelling-11s` cuando se cierre el change.
 
 ### 2026-09-10 — Rediseño: storymap scrollytelling

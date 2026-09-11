@@ -6,7 +6,7 @@ const CUENTA = "@conmapas";
 
 /* Música de fondo: pegá el link de YouTube o el ID del video.
    Dejá "" para no usar música (o para usar audio/musica.mp3 si existe). */
-const YT_MUSICA = "";
+const YT_MUSICA = "6TvCfFvPdWs";
 const VOL_MUSICA = 0.2;
 const VOL_MUSICA_DUCK = 0.05;
 const VOL_DISCURSO = 0.95;
