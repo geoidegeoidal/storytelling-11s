@@ -7,8 +7,9 @@
 
 ## Sesión actual / próxima
 
-**Estado**: Rescate completo (11 posts, 17 imágenes), sitio funcional y
-horas/títulos cargados. Falta verificación visual y publicar.
+**Estado**: Publicado en GitHub Pages. Sitio en vivo:
+https://geoidegeoidal.github.io/storytelling-11s/. Falta verificación visual
+en navegador y archivar el change de openspec.
 
 ## Historial de sesiones
 
@@ -36,13 +37,14 @@ el sitio de storytelling.
   a propósito. `fecha` (publicación) ordena el timeline y coincide con el orden
   narrativo.
 - Crédito: los mapas dicen "Elaborado por Jorge Ulloa" (reflejado en el pie).
-- Publicación (hosting) sin definir.
+- Publicado: repo `geoidegeoidal/storytelling-11s`, GitHub Pages (branch `main`,
+  raíz). Deploy = `git push` a `main`.
 
 **Próxima sesión**:
 - Verificación visual en navegador (desktop/móvil) y accesibilidad básica.
-- Elegir hosting y publicar. `openspec validate` + `archive`.
+- `openspec validate` + `archive` del change.
 
-**Commits relevantes**: (proyecto sin git inicializado)
+**Commits relevantes**: `d9bc098` (rescate + sitio + openspec)
 
 ### 2026-09-10 — Planificación del storytelling 11-S
 

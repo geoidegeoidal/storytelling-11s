@@ -43,3 +43,10 @@ Instagram (cuenta de conmapas) y los relatos que los acompañan.
 - Self-check del rescate: `.\.venv\Scripts\python.exe scripts\fetch_post.py --demo`
 - Validar spec: `openspec validate add-storytelling-11s`
 - Servir local: `.\.venv\Scripts\python.exe -m http.server` en la raíz.
+
+## Publicación
+
+- Repo: https://github.com/geoidegeoidal/storytelling-11s
+- Sitio: https://geoidegeoidal.github.io/storytelling-11s/ (GitHub Pages,
+  branch `main`, raíz).
+- Deploy: `git push` a `main`; Pages publica solo. No hay build step.
