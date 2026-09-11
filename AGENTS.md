@@ -76,7 +76,7 @@ Instagram (cuenta de conmapas) y los relatos que los acompañan.
 - Si no hay fuente configurada, el control y la nota se ocultan solos.
 - El audio intenta autoplay al cargar. Si el navegador lo bloquea (política de
   autoplay), arranca con el **primer gesto** en cualquier parte (clic, tecla o
-  toque); la pista "Tocá para activar el sonido" desaparece al desbloquear. El
+  toque); la pista "Activa el sonido" desaparece al desbloquear. El
   botón flotante es solo un mute/unmute.
 - Al abrir, si hay audio, aparece una **pantalla de entrada** ("Entrar con
   sonido" / "Entrar en silencio"). El clic en la primera es el gesto que

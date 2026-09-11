@@ -98,7 +98,7 @@ function escena(e, flip) {
   texto.append(meta);
 
   if (sec._audioConfig) {
-    const nota = el("p", "scene__discurso", "Tocá para activar el sonido");
+    const nota = el("p", "scene__discurso", "Activa el sonido");
     nota.hidden = true;
     texto.appendChild(nota);
   }
@@ -264,7 +264,7 @@ function actualizarNotas() {
       ? "Reproduciendo el último discurso"
       : desbloqueado
       ? "El discurso suena al llegar a esta escena"
-      : "Discurso · tocá para activar el sonido";
+      : "Discurso · activa el sonido";
   });
 }
 
@@ -279,7 +279,7 @@ function actualizarBoton() {
 
 function mostrarPista() {
   if (pistaSonido || desbloqueado) return;
-  pistaSonido = el("button", "pista-sonido", "Tocá para activar el sonido");
+  pistaSonido = el("button", "pista-sonido", "Activa el sonido");
   pistaSonido.type = "button";
   pistaSonido.addEventListener("click", desbloquear);
   document.body.appendChild(pistaSonido);
