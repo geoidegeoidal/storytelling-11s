@@ -1,5 +1,7 @@
 const AVISO = document.getElementById("aviso");
-const LISTA = document.getElementById("timeline");
+const ESCENAS = document.getElementById("escenas");
+const BARRA = document.getElementById("progress");
+const HUD_HORA = document.getElementById("hud-hora");
 const CUENTA = "@conmapas";
 
 function mostrarAviso(msg) {
@@ -24,82 +26,138 @@ function el(tag, cls, text) {
   return nodo;
 }
 
-function crearImagen(src, alt) {
+function crearImagen(src, alt, lazy) {
   const img = document.createElement("img");
   img.src = src;
   img.alt = alt;
-  img.loading = "lazy";
+  if (lazy !== false) img.loading = "lazy";
   img.decoding = "async";
   return img;
 }
 
-function crearEvento(e) {
-  const item = el("li", "evento");
-
-  const marca = el("div", "marca");
-  const hora = el("time", "hora");
-  const etiqueta = (e.hora || "").trim();
-  if (etiqueta) {
-    hora.textContent = etiqueta;
-  } else {
-    hora.textContent = "—";
-    hora.classList.add("vacia");
-  }
-  marca.appendChild(hora);
-
-  const contenido = el("div", "contenido");
-
-  const fuente = el("p", "fuente");
-  fuente.appendChild(el("span", null, CUENTA + " · "));
-  const enlace = el("a", null, "Ver en Instagram");
-  enlace.href = e.url || "#";
-  enlace.target = "_blank";
-  enlace.rel = "noopener";
-  fuente.appendChild(enlace);
-  contenido.appendChild(fuente);
-
-  contenido.appendChild(el("h3", "titulo", e.titulo || "Sin título"));
-
-  const media = el("figure", "media");
-  e.imagenes.forEach((src, i) => {
-    const sufijo = e.imagenes.length > 1 ? ` (${i + 1} de ${e.imagenes.length})` : "";
-    media.appendChild(crearImagen(src, `${e.titulo || "Mapa"}${sufijo}`));
-  });
-  if (e.imagenes.length > 1) {
-    media.appendChild(el("figcaption", "contador", `${e.imagenes.length} mapas`));
-  }
-  contenido.appendChild(media);
-
-  const relato = el("div", "relato");
-  e.relato
+function parrafos(texto) {
+  const box = el("div", "relato");
+  texto
     .split(/\n{2,}/)
     .map((t) => t.trim())
     .filter(Boolean)
-    .forEach((t) => relato.appendChild(el("p", null, t)));
-  contenido.appendChild(relato);
-
-  item.append(marca, contenido);
-  return item;
+    .forEach((t) => box.appendChild(el("p", null, t)));
+  return box;
 }
 
-function revelar() {
-  const items = LISTA.querySelectorAll(".evento");
+function media(e) {
+  const fig = el("figure", "media");
+  fig.appendChild(crearImagen(e.imagenes[0], e.titulo));
+  return fig;
+}
+
+function fuenteLink(e) {
+  const a = el("a", "scene__src", "Ver en Instagram");
+  a.href = e.url || "#";
+  a.target = "_blank";
+  a.rel = "noopener";
+  return a;
+}
+
+function escena(e, flip) {
+  const sec = el("section", "scene" + (flip ? " scene--flip" : ""));
+  sec.id = e.shortcode;
+  sec.dataset.hora = e.hora || "";
+
+  const texto = el("div", "scene__text");
+  const meta = el("p", "scene__meta");
+  const hora = el("span", "scene__hora");
+  if (e.hora) {
+    hora.textContent = e.hora;
+  } else {
+    hora.classList.add("vacia");
+  }
+  meta.append(hora, fuenteLink(e));
+  texto.append(meta, el("h2", "scene__title", e.titulo), parrafos(e.relato));
+
+  const col = el("div", "scene__media");
+  col.appendChild(media(e));
+
+  sec.append(texto, col);
+  return sec;
+}
+
+function intro(e) {
+  const sec = el("section", "intro");
+  sec.append(el("h2", "intro__title", e.titulo), parrafos(e.relato));
+  return sec;
+}
+
+function cierre(e) {
+  const sec = el("section", "closing");
+  if (e.imagenes[0]) {
+    const bg = el("div", "closing__bg");
+    bg.style.backgroundImage = `url("${e.imagenes[0]}")`;
+    sec.appendChild(bg);
+  }
+  const inner = el("div", "closing__inner");
+  inner.append(el("h2", "scene__title", e.titulo), parrafos(e.relato));
+  sec.appendChild(inner);
+  return sec;
+}
+
+function portada(e) {
+  const bg = document.getElementById("cover-bg");
+  if (bg && e.imagenes[0]) bg.style.backgroundImage = `url("${e.imagenes[0]}")`;
+}
+
+function activarReveal() {
+  const nodos = ESCENAS.querySelectorAll(".scene");
   if (!("IntersectionObserver" in window)) {
-    items.forEach((n) => n.classList.add("visible"));
+    nodos.forEach((n) => n.classList.add("visible"));
     return;
   }
-  const io = new IntersectionObserver(
+  const revelar = new IntersectionObserver(
     (entradas) => {
       entradas.forEach((en) => {
         if (en.isIntersecting) {
           en.target.classList.add("visible");
-          io.unobserve(en.target);
+          revelar.unobserve(en.target);
         }
       });
     },
-    { rootMargin: "0px 0px -10% 0px", threshold: 0.05 }
+    { rootMargin: "0px 0px -12% 0px", threshold: 0.05 }
   );
-  items.forEach((n) => io.observe(n));
+  nodos.forEach((n) => revelar.observe(n));
+
+  const hud = new IntersectionObserver(
+    (entradas) => {
+      entradas.forEach((en) => {
+        if (en.isIntersecting && en.target.dataset.hora) {
+          HUD_HORA.textContent = en.target.dataset.hora;
+        }
+      });
+    },
+    { rootMargin: "-48% 0px -48% 0px" }
+  );
+  nodos.forEach((n) => hud.observe(n));
+}
+
+function activarProgreso() {
+  let pendiente = false;
+  const pintar = () => {
+    const doc = document.documentElement;
+    const total = doc.scrollHeight - doc.clientHeight;
+    const avance = total > 0 ? doc.scrollTop / total : 0;
+    BARRA.style.transform = `scaleX(${avance})`;
+    pendiente = false;
+  };
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!pendiente) {
+        pendiente = true;
+        requestAnimationFrame(pintar);
+      }
+    },
+    { passive: true }
+  );
+  pintar();
 }
 
 async function iniciar() {
@@ -128,9 +186,23 @@ async function iniciar() {
   if (omitidas > 0) {
     mostrarAviso(`${omitidas} entrada(s) con datos incompletos fueron omitidas.`);
   }
+  if (validas.length === 0) return;
 
-  validas.forEach((e) => LISTA.appendChild(crearEvento(e)));
-  revelar();
+  portada(validas[0]);
+  ESCENAS.appendChild(intro(validas[0]));
+
+  const cuerpo = validas.length > 2 ? validas.slice(1, -1) : [];
+  cuerpo.forEach((e, i) => ESCENAS.appendChild(escena(e, i % 2 === 1)));
+
+  if (validas.length > 1) ESCENAS.appendChild(cierre(validas[validas.length - 1]));
+
+  activarReveal();
+  activarProgreso();
+
+  if (location.hash) {
+    const destino = document.getElementById(location.hash.slice(1));
+    if (destino) window.scrollTo({ top: destino.offsetTop, behavior: "instant" });
+  }
 }
 
 iniciar();

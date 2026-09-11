@@ -7,11 +7,42 @@
 
 ## Sesión actual / próxima
 
-**Estado**: Publicado en GitHub Pages. Sitio en vivo:
-https://geoidegeoidal.github.io/storytelling-11s/. Falta verificación visual
-en navegador y archivar el change de openspec.
+**Estado**: Rediseñado como storymap scrollytelling y publicado en GitHub Pages:
+https://geoidegeoidal.github.io/storytelling-11s/ (verificado con screenshots
+headless: portada, escena desktop y móvil). Falta archivar el change de openspec.
 
 ## Historial de sesiones
+
+### 2026-09-10 — Rediseño: storymap scrollytelling
+
+**Objetivo**: Reemplazar el listado plano por un storymap tipo ArcGIS StoryMaps,
+tomando ideas de refero.design.
+
+**Hecho**:
+- `index.html`/`styles.css`/`app.js` reescritos: portada full-bleed, intro,
+  escenas con **texto que scrollea + mapa fijo (sticky)** alternando lados,
+  cierre full-bleed, HUD con la hora activa y barra de progreso.
+- Deep-links por shortcode (`#<shortcode>`).
+- Dirección de diseño rescatada de refero: lienzo oscuro (Air), tipografía
+  editorial monumental (Aker), display condensado + mono (AI for Business).
+  Acento magenta que retoma el de los propios mapas.
+- Verificación con Chrome headless (`--screenshot`): portada, Valparaíso
+  (mapa izq/texto der), Carriel Sur (texto izq/mapa der) y móvil.
+
+**Decidido**:
+- Se muestra **solo el mapa** (1ª imagen) por entrada, sin carrusel: en todos los
+  carruseles la 2ª imagen es la tarjeta de texto que duplica el relato.
+  Spec `storytelling-site` actualizado en consecuencia.
+- Orden por `fecha`; `hora` es la etiqueta mostrada (grande, en Anton).
+
+**Bloqueantes / pendientes**:
+- Archivar el change de openspec cuando el usuario dé el visto bueno.
+- Trampa para revisar: en headless, un carrusel `overflow-x:auto`/grid no pinta
+  (por eso se descartó); no afecta al sitio actual.
+
+**Próxima sesión**:
+- `openspec archive add-storytelling-11s` si se cierra el change.
+- Ajustes finos de contenido (títulos/horas) si el usuario los pide.
 
 ### 2026-09-10 — Rescate de 11 posts + sitio
 

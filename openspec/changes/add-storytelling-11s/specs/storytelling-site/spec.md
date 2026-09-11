@@ -12,15 +12,15 @@ El sitio SHALL mostrar las entradas del timeline en orden cronológico según su
 - **THEN** las entradas aparecen ordenadas por su hora, independientemente del orden en que fueron rescatadas
 
 ### Requirement: Contenido por entrada
-Cada entrada SHALL mostrar su hora, un título, el/los mapas asociados y el relato completo.
+Cada entrada SHALL mostrar su hora, un título, el mapa asociado (la primera imagen) y el relato completo.
 
 #### Scenario: Entrada con una imagen
 - **WHEN** una entrada tiene una imagen
-- **THEN** se muestra la hora, el título, la imagen y el relato
+- **THEN** se muestra la hora, el título, el mapa y el relato
 
-#### Scenario: Entrada con carrusel
-- **WHEN** una entrada tiene varias imágenes
-- **THEN** se muestran todas, navegables, dentro de la misma entrada
+#### Scenario: Entrada con varias imágenes
+- **WHEN** una entrada tiene varias imágenes (mapa + tarjeta de texto)
+- **THEN** se muestra el mapa (primera imagen) y el relato en texto, sin repetir la tarjeta
 
 ### Requirement: Contenido dirigido por datos
 El sitio SHALL renderizarse a partir de `data/timeline.json`, de modo que agregar o editar una entrada no requiera modificar el código del sitio.

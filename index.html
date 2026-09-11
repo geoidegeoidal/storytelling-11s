@@ -7,19 +7,29 @@
   <meta name="description" content="El golpe de Estado en Chile, reconstruido hora a hora a partir de los mapas y relatos de ConMapas.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="portada">
-    <p class="kicker">Memoria · Chile</p>
-    <h1>11 de septiembre<br>de 1973</h1>
-    <p class="deck">Relato hora a hora del golpe de Estado, reconstruido a partir de los mapas y relatos de <em>ConMapas</em>.</p>
+  <div class="hud" aria-hidden="true">
+    <span class="hud__brand">11 · 09 · 1973</span>
+    <span class="hud__now" id="hud-hora">—</span>
+  </div>
+  <div class="progress"><div class="progress__bar" id="progress"></div></div>
+
+  <header class="cover" id="cover">
+    <div class="cover__bg" id="cover-bg"></div>
+    <div class="cover__inner">
+      <p class="kicker">Memoria · Chile</p>
+      <h1 class="cover__title">11 de septiembre<br>de 1973</h1>
+      <p class="cover__deck">Relato hora a hora del golpe de Estado, reconstruido a partir de los mapas y relatos de <em>ConMapas</em>.</p>
+      <p class="cover__cue">Desplazate para recorrer <span aria-hidden="true">↓</span></p>
+    </div>
   </header>
 
-  <main>
+  <main id="main">
     <div id="aviso" class="aviso" role="alert" hidden></div>
-    <ol id="timeline" class="timeline" aria-label="Línea de tiempo del 11 de septiembre de 1973"></ol>
+    <div id="escenas"></div>
   </main>
 
   <footer class="pie">
