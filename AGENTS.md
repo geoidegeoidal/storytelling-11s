@@ -65,8 +65,9 @@ Instagram (cuenta de conmapas) y los relatos que los acompañan.
   autoplay), arranca con el **primer gesto** en cualquier parte (clic, tecla o
   toque); la pista "Tocá para activar el sonido" desaparece al desbloquear. El
   botón flotante es solo un mute/unmute.
-- El discurso suena al centrar su escena y baja la música (duck); al salir se
-  pausa y la música vuelve.
+- El discurso suena al centrar su escena y **sigue hasta el final** (no se pausa
+  al scrollear); baja la música (duck) mientras dura y la música vuelve al
+  terminar (o al mutear).
 - No se versionan audios con derechos; el embed delega la licencia en YouTube.
 
 ## Publicación

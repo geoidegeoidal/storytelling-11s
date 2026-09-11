@@ -10,9 +10,10 @@
 **Estado**: Textos reescritos, animaciones suaves y audio configurado con
 embeds de YouTube (música `6TvCfFvPdWs`, discurso `kd0v4WKPKGI`). El audio
 intenta autoplay y, si el navegador lo bloquea, arranca con el primer gesto
-(pista visible hasta desbloquear). Música → discurso con duck al llegar su
-escena. Publicado en GitHub Pages. Falta validar en navegador real y archivar
-el change de openspec.
+(pista visible hasta desbloquear). Música → disco de Allende arranca en su mapa
+y sigue sonando hasta el final (no se pausa al scrollear), con la música en
+duck y restaurada al terminar. Publicado en GitHub Pages. Falta validar en
+navegador real y archivar el change de openspec.
 
 ## Historial de sesiones
 

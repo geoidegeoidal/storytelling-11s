@@ -461,9 +461,6 @@ function activarReveal() {
           } else {
             escenaDiscurso = sec;
           }
-        } else if (escenaDiscurso) {
-          pausarDiscurso(escenaDiscurso);
-          escenaDiscurso = null;
         }
       });
     },
