@@ -427,11 +427,12 @@ body.sonido-on .scene__discurso::before { animation: pulse 1.7s ease-out infinit
 /* Control de sonido */
 .yt-oculto {
   position: fixed;
-  left: -9999px;
-  top: 0;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
+  left: 0;
+  bottom: 0;
+  width: 200px;
+  height: 120px;
+  opacity: 0.001;
+  z-index: -1;
   pointer-events: none;
 }
 .sonido {

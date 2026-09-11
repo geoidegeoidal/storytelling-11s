@@ -4,8 +4,8 @@ const BARRA = document.getElementById("progress");
 const HUD_HORA = document.getElementById("hud-hora");
 const CUENTA = "@conmapas";
 
-/* Música de fondo: pegá el ID del video de YouTube, o dejá "" para usar
-   audio/musica.mp3 si existe. Ej: const YT_MUSICA = "dQw4w9WgXcQ"; */
+/* Música de fondo: pegá el link de YouTube o el ID del video.
+   Dejá "" para no usar música (o para usar audio/musica.mp3 si existe). */
 const YT_MUSICA = "";
 const VOL_MUSICA = 0.2;
 const VOL_MUSICA_DUCK = 0.05;
@@ -163,18 +163,27 @@ function cargarYT() {
   return ytListo;
 }
 
+function extraerIdYT(v) {
+  if (!v) return "";
+  const s = String(v).trim();
+  const m = s.match(/(?:youtu\.be\/|[?&]v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);
+  if (m) return m[1];
+  return s;
+}
+
 async function fuenteYT(id, loop) {
   await cargarYT();
+  const vid = extraerIdYT(id);
   const host = el("div", "yt-oculto");
   document.body.appendChild(host);
   const player = new YT.Player(host, {
-    videoId: id,
+    videoId: vid,
     playerVars: {
       autoplay: 0,
       controls: 0,
       disablekb: 1,
       loop: loop ? 1 : 0,
-      playlist: loop ? id : undefined,
+      playlist: loop ? vid : undefined,
       playsinline: 1,
       rel: 0,
     },
