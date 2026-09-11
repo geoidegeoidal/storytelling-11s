@@ -82,14 +82,11 @@ Instagram (cuenta de conmapas) y los relatos que los acompañan.
   sonido" / "Entrar en silencio"). El clic en la primera es el gesto que
   desbloquea el audio y arranca la música; la segunda entra muteado.
 - **Modo in-app** (navegador de Instagram/Facebook/TikTok): se detecta por
-  User-Agent (`EN_APP`). Esos navegadores no permiten controlar YouTube por
-  código, así que se usa un **iframe de YouTube transparente** (`.yt-card`,
-  `controls:1`, `opacity:0.001`) con **nuestro botón "Sonido" encima,
-  `pointer-events:none`**: el toque atraviesa al play nativo de YouTube, pero
-  solo se ve la interfaz del sitio. Sirve para la música y, al llegar a su
-  escena, cambia al discurso (`loadVideoById`). El estado del botón (ecualizador)
-  sigue el `onStateChange` de YouTube. En in-app no se usa el player oculto ni el
-  desbloqueo programático.
+  User-Agent (`EN_APP`). Esos navegadores no permiten controlar YouTube, así que
+  **no se intenta reproducir**: la pantalla de entrada pasa a un **aviso** que
+  recomienda abrir el enlace en Chrome, Edge o Safari. "Abrir en el navegador"
+  copia el enlace al portapapeles e intenta abrirlo afuera; "Seguir sin sonido"
+  cierra el aviso. En navegadores normales el audio funciona como siempre.
 - El discurso suena al centrar su escena y **sigue hasta el final** (no se pausa
   al scrollear); baja la música (duck) mientras dura y la música vuelve al
   terminar (o al mutear).

@@ -29,9 +29,6 @@ let escenaDiscurso = null;
 let ytListo = null;
 let idMusica = YT_MUSICA;
 let idDiscurso = "";
-let cardYt = null;
-let cardHost = null;
-let cardLabel = null;
 
 function mostrarAviso(msg) {
   AVISO.textContent = msg;
@@ -286,10 +283,6 @@ function setHora(txt) {
 function actualizarNotas() {
   document.querySelectorAll(".scene__discurso").forEach((n) => {
     const sec = n.closest(".scene");
-    if (EN_APP) {
-      n.textContent = "Discurso · toca el botón de sonido";
-      return;
-    }
     const suena = sonidoActivo && desbloqueado && escenaDiscurso === sec;
     n.textContent = suena
       ? "Reproduciendo el último discurso"
@@ -301,10 +294,6 @@ function actualizarNotas() {
 
 function actualizarBoton() {
   if (!botonSonido) return;
-  if (EN_APP) {
-    botonSonido.hidden = !cardHost;
-    return;
-  }
   botonSonido.hidden = !(musica || hayFuenteEscena);
   botonSonido.classList.toggle("is-on", sonidoActivo && desbloqueado);
   botonSonido.setAttribute("aria-pressed", String(sonidoActivo));
@@ -380,21 +369,51 @@ function armarDesbloqueo() {
   eventos.forEach((e) => window.addEventListener(e, once, { passive: true }));
 }
 
+function abrirExterno() {
+  const url = location.href;
+  try {
+    if (navigator.clipboard) navigator.clipboard.writeText(url);
+  } catch { /* noop */ }
+  try {
+    window.open(url, "_blank", "noopener");
+  } catch { /* noop */ }
+  const si = document.getElementById("entrada-si");
+  if (si) si.textContent = "Enlace copiado · abrilo en Chrome/Edge/Safari";
+}
+
 function mostrarEntrada() {
   if (!ENTRADA) return;
   ENTRADA.hidden = false;
   document.body.classList.add("entrada-abierta");
   const si = document.getElementById("entrada-si");
   const no = document.getElementById("entrada-no");
+
+  if (EN_APP) {
+    const t = ENTRADA.querySelector(".entrada__titulo");
+    const p = ENTRADA.querySelector(".entrada__texto");
+    const n = ENTRADA.querySelector(".entrada__nota");
+    if (t) t.textContent = "Mejor experiencia en tu navegador";
+    if (p) {
+      p.textContent =
+        "Estás viendo esto dentro de Instagram. Para escuchar la música y el último discurso de Allende, abrí este enlace en Chrome, Edge o Safari.";
+    }
+    if (n) n.textContent = "También puedes seguir leyendo sin sonido.";
+    if (si) {
+      si.textContent = "Abrir en el navegador";
+      si.addEventListener("click", abrirExterno);
+      si.focus();
+    }
+    if (no) {
+      no.textContent = "Seguir sin sonido";
+      no.addEventListener("click", cerrarEntrada);
+    }
+    return;
+  }
+
   if (si) {
     si.addEventListener("click", () => {
       sonidoActivo = true;
       document.body.classList.add("sonido-on");
-      if (EN_APP) {
-        mostrarCard();
-        cerrarEntrada();
-        return;
-      }
       if (musica) musica.play();
       desbloquear();
       cerrarEntrada();
@@ -490,46 +509,6 @@ async function montarSonido() {
   actualizarBoton();
 }
 
-function mostrarCard() {
-  if (cardHost) cardHost.hidden = false;
-}
-
-async function montarSonidoApp() {
-  document.body.classList.add("in-app");
-
-  cardHost = el("div", "yt-card");
-  const frame = el("div", "yt-card__frame");
-  const slot = el("div");
-  frame.appendChild(slot);
-  cardHost.appendChild(frame);
-
-  botonSonido = crearBotonSonido();
-  botonSonido.querySelector(".sonido__texto").textContent = "Sonido";
-  cardHost.appendChild(botonSonido);
-
-  cardHost.hidden = true;
-  document.body.appendChild(cardHost);
-
-  try {
-    await cargarYT();
-    cardYt = new YT.Player(slot, {
-      videoId: idMusica || idDiscurso,
-      playerVars: { controls: 1, playsinline: 1, rel: 0, modestbranding: 1 },
-    });
-    cardYt.addEventListener("onStateChange", (e) => {
-      if (botonSonido) botonSonido.classList.toggle("is-on", e.data === 1);
-    });
-  } catch {
-    cardYt = null;
-    mostrarAviso(
-      "Este navegador no permite reproducir YouTube. Abre el enlace en Safari o Chrome para escuchar."
-    );
-  }
-
-  actualizarBoton();
-  actualizarNotas();
-}
-
 /* ---------- Observers ---------- */
 
 function activarReveal() {
@@ -558,14 +537,6 @@ function activarReveal() {
         if (!en.isIntersecting) return;
         const sec = en.target;
         if (sec.dataset.hora) setHora(sec.dataset.hora);
-        if (EN_APP) {
-          if (sec._discursoId && cardYt) {
-            try { cardYt.loadVideoById(sec._discursoId); } catch { /* noop */ }
-            if (cardLabel) cardLabel.textContent = "Último discurso de Allende";
-            mostrarCard();
-          }
-          return;
-        }
         if (sec._fuente) {
           if (sonidoActivo && escenaDiscurso !== sec) {
             if (escenaDiscurso) pausarDiscurso(escenaDiscurso);
@@ -657,12 +628,8 @@ async function iniciar() {
   activarProgreso();
 
   if (EN_APP) {
-    if (idMusica || idDiscurso) {
-      await montarSonidoApp();
-      mostrarEntrada();
-    } else if (ENTRADA) {
-      ENTRADA.remove();
-    }
+    if (idMusica || idDiscurso) mostrarEntrada();
+    else if (ENTRADA) ENTRADA.remove();
   } else {
     await montarSonido();
     if (musica || hayFuenteEscena) mostrarEntrada();

@@ -21,18 +21,13 @@ Instagram (y similares).
 
 **Hecho**:
 - `EN_APP` (detección por User-Agent: Instagram/FB/TikTok/Line).
-- `montarSonidoApp()`: reproductor de YouTube con **iframe transparente**
-  (`opacity:0.001`) y **nuestro botón "Sonido" encima con `pointer-events:none`**,
-  así el toque cae en el play nativo de YouTube pero se ve solo la interfaz del
-  sitio. La música usa el video configurado; al centrar la escena del discurso,
-  `loadVideoById` cambia al discurso. El ecualizador del botón sigue el
-  `onStateChange`.
-- Trampa: `new YT.Player(el)` **reemplaza** ese elemento por el iframe; para
-  conservar el marco 16:9 hay que pasar un div interno (slot) y mantener el
-  contenedor.
-- Verificado con Chrome emulando UA de Instagram + viewport 390×844: overlay,
-  tarjeta transparente, `pointer-events:none` y `elementFromPoint` sobre el
-  botón devuelve el IFRAME (el toque llega al play).
+- En in-app **no se intenta reproducir audio**: la pantalla de entrada cambia a
+  un aviso ("Mejor experiencia en tu navegador") que recomienda abrir en
+  Chrome/Edge/Safari, con "Abrir en el navegador" (copia el enlace y prueba
+  `window.open`) y "Seguir sin sonido".
+- Se descartó el reproductor in-app (visible y luego transparente): se veía mal.
+- Verificado con Chrome emulando UA de Instagram + viewport 390×844: overlay con
+  el aviso, sin reproductor y sin overflow (scrollW 390).
 
 **Próxima sesión**:
 - Probar en un teléfono real dentro del navegador de Instagram.
