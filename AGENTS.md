@@ -83,11 +83,13 @@ Instagram (cuenta de conmapas) y los relatos que los acompañan.
   desbloquea el audio y arranca la música; la segunda entra muteado.
 - **Modo in-app** (navegador de Instagram/Facebook/TikTok): se detecta por
   User-Agent (`EN_APP`). Esos navegadores no permiten controlar YouTube por
-  código, así que se muestra un **reproductor visible** (`.yt-card`, con
-  controles nativos) para que la persona toque el play del propio YouTube; sirve
-  para la música y, al llegar a su escena, se cambia al discurso
-  (`loadVideoById`). En in-app no se usa el reproductor oculto ni el desbloqueo
-  programático.
+  código, así que se usa un **iframe de YouTube transparente** (`.yt-card`,
+  `controls:1`, `opacity:0.001`) con **nuestro botón "Sonido" encima,
+  `pointer-events:none`**: el toque atraviesa al play nativo de YouTube, pero
+  solo se ve la interfaz del sitio. Sirve para la música y, al llegar a su
+  escena, cambia al discurso (`loadVideoById`). El estado del botón (ecualizador)
+  sigue el `onStateChange` de YouTube. En in-app no se usa el player oculto ni el
+  desbloqueo programático.
 - El discurso suena al centrar su escena y **sigue hasta el final** (no se pausa
   al scrollear); baja la música (duck) mientras dura y la música vuelve al
   terminar (o al mutear).

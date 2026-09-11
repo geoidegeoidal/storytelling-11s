@@ -499,11 +499,31 @@ body.sonido-on .scene__discurso::before { animation: pulse 1.7s ease-out infinit
 }
 .yt-card__close:hover { color: var(--accent); }
 
-/* En in-app el botón de sonido va arriba, para no chocar con la tarjeta */
-body.in-app .sonido {
-  top: 2.5rem;
+/* Modo in-app: iframe transparente + botón propio encima que deja pasar el toque
+   (el tap cae en el play de YouTube, pero se ve solo nuestra interfaz) */
+body.in-app .yt-card {
+  left: auto;
   right: clamp(0.8rem, 3vw, 1.5rem);
-  bottom: auto;
+  top: auto;
+  bottom: clamp(0.8rem, 3vw, 1.5rem);
+  width: min(230px, 62vw);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+body.in-app .yt-card__label,
+body.in-app .yt-card__hint,
+body.in-app .yt-card__close { display: none; }
+body.in-app .yt-card__frame { opacity: 0.001; border-radius: 0; }
+body.in-app .yt-card .sonido {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: max-content;
+  height: max-content;
+  pointer-events: none;
 }
 .sonido {
   position: fixed;

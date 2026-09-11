@@ -21,15 +21,18 @@ Instagram (y similares).
 
 **Hecho**:
 - `EN_APP` (detección por User-Agent: Instagram/FB/TikTok/Line).
-- `montarSonidoApp()`: crea un **reproductor visible** `.yt-card` (16:9, con
-  controles de YouTube) que la persona activa con el play nativo. La música usa
-  el video configurado; al centrar la escena del discurso, `loadVideoById`
-  cambia al discurso. Botón "Reproductor" (arriba en in-app) para mostrar/ocultar.
+- `montarSonidoApp()`: reproductor de YouTube con **iframe transparente**
+  (`opacity:0.001`) y **nuestro botón "Sonido" encima con `pointer-events:none`**,
+  así el toque cae en el play nativo de YouTube pero se ve solo la interfaz del
+  sitio. La música usa el video configurado; al centrar la escena del discurso,
+  `loadVideoById` cambia al discurso. El ecualizador del botón sigue el
+  `onStateChange`.
 - Trampa: `new YT.Player(el)` **reemplaza** ese elemento por el iframe; para
   conservar el marco 16:9 hay que pasar un div interno (slot) y mantener el
   contenedor.
 - Verificado con Chrome emulando UA de Instagram + viewport 390×844: overlay,
-  tarjeta y cambio de video correctos.
+  tarjeta transparente, `pointer-events:none` y `elementFromPoint` sobre el
+  botón devuelve el IFRAME (el toque llega al play).
 
 **Próxima sesión**:
 - Probar en un teléfono real dentro del navegador de Instagram.

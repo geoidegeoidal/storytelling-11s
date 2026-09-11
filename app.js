@@ -287,7 +287,7 @@ function actualizarNotas() {
   document.querySelectorAll(".scene__discurso").forEach((n) => {
     const sec = n.closest(".scene");
     if (EN_APP) {
-      n.textContent = "Discurso · toca ▶ en el reproductor";
+      n.textContent = "Discurso · toca el botón de sonido";
       return;
     }
     const suena = sonidoActivo && desbloqueado && escenaDiscurso === sec;
@@ -303,7 +303,6 @@ function actualizarBoton() {
   if (!botonSonido) return;
   if (EN_APP) {
     botonSonido.hidden = !cardHost;
-    botonSonido.classList.toggle("is-on", !!cardHost && !cardHost.hidden);
     return;
   }
   botonSonido.hidden = !(musica || hayFuenteEscena);
@@ -497,31 +496,17 @@ function mostrarCard() {
 
 async function montarSonidoApp() {
   document.body.classList.add("in-app");
-  botonSonido = crearBotonSonido();
-  botonSonido.querySelector(".sonido__texto").textContent = "Reproductor";
-  botonSonido.hidden = !cardHost;
-  botonSonido.addEventListener("click", () => {
-    if (cardHost) {
-      cardHost.hidden = !cardHost.hidden;
-      actualizarBoton();
-    }
-  });
-  document.body.appendChild(botonSonido);
 
   cardHost = el("div", "yt-card");
-  cardLabel = el("p", "yt-card__label", "Música");
   const frame = el("div", "yt-card__frame");
   const slot = el("div");
   frame.appendChild(slot);
-  const hint = el("p", "yt-card__hint", "Toca ▶ en el reproductor para escuchar");
-  const cerrar = el("button", "yt-card__close", "×");
-  cerrar.type = "button";
-  cerrar.setAttribute("aria-label", "Cerrar reproductor");
-  cerrar.addEventListener("click", () => {
-    cardHost.hidden = true;
-    actualizarBoton();
-  });
-  cardHost.append(cardLabel, frame, hint, cerrar);
+  cardHost.appendChild(frame);
+
+  botonSonido = crearBotonSonido();
+  botonSonido.querySelector(".sonido__texto").textContent = "Sonido";
+  cardHost.appendChild(botonSonido);
+
   cardHost.hidden = true;
   document.body.appendChild(cardHost);
 
@@ -530,6 +515,9 @@ async function montarSonidoApp() {
     cardYt = new YT.Player(slot, {
       videoId: idMusica || idDiscurso,
       playerVars: { controls: 1, playsinline: 1, rel: 0, modestbranding: 1 },
+    });
+    cardYt.addEventListener("onStateChange", (e) => {
+      if (botonSonido) botonSonido.classList.toggle("is-on", e.data === 1);
     });
   } catch {
     cardYt = null;
