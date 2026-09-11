@@ -433,10 +433,10 @@ body.sonido-on .scene__discurso::before { animation: pulse 1.7s ease-out infinit
   position: fixed;
   left: 0;
   bottom: 0;
-  width: 200px;
-  height: 120px;
-  opacity: 0.001;
-  z-index: -1;
+  width: 1px;
+  height: 1px;
+  opacity: 0.01;
+  z-index: 0;
   pointer-events: none;
 }
 .sonido {
@@ -510,8 +510,9 @@ body.sonido-on .scene__discurso::before { animation: pulse 1.7s ease-out infinit
   position: fixed;
   inset: 0;
   z-index: 70;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: clamp(1.5rem, 6vw, 4rem);
   background: radial-gradient(70% 70% at 50% 40%, rgba(10, 10, 12, 0.78), rgba(6, 6, 8, 0.95));
   backdrop-filter: blur(14px);
@@ -520,7 +521,7 @@ body.sonido-on .scene__discurso::before { animation: pulse 1.7s ease-out infinit
 .entrada[hidden] { display: none; }
 .entrada--fuera { opacity: 0; pointer-events: none; }
 .entrada__caja {
-  max-width: 34rem;
+  width: min(100%, 34rem);
   text-align: center;
   animation: rise 0.8s var(--ease) both;
 }

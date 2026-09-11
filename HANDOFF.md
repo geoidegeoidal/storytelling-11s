@@ -8,11 +8,32 @@
 ## Sesión actual / próxima
 
 **Estado**: Sitio completo y publicado (textos, animaciones, pantalla de entrada
-de audio y embeds de YouTube). Además se grabó un **reel vertical** 1080×1920
-(`reel-11s.mp4` en la raíz, no versionado) con `scripts/record_reel.mjs`. Falta
-validar en navegador real y archivar el change de openspec.
+de audio y embeds de YouTube). Se endureció el audio para **móvil** (onReady
+antes del toque, mute→play→unmute de iOS, fallback con segundo toque) y se
+corrigió el desborde del overlay en pantallas chicas. Falta validar en teléfono
+real y archivar el change de openspec.
 
 ## Historial de sesiones
+
+### 2026-09-10 — Audio en móvil + overlay responsive
+
+**Objetivo**: La música no sonaba en celulares.
+
+**Hecho**:
+- `fuenteYT` ahora espera `onReady` (con timeout) antes de que aparezca la
+  pantalla de entrada, para que `playVideo()` funcione con el toque.
+- `play()` de YouTube hace **mute → play → unmute** (desbloqueo de iOS).
+- Al tocar "Entrar con sonido" se llama `musica.play()` síncrono (gesto) y, si
+  falla, se muestra la pista para un segundo toque.
+- `cargarYT` con timeout (10 s) y `montarSonido` con try/catch por fuente: si
+  YouTube no carga (p. ej. navegador in-app), la página no se rompe.
+- Overlay: `display:flex` + caja `width:min(100%,34rem)` (antes `grid` medía
+  max-content y se desbordaba en 390 px). Verificado con emulación: scrollW 390.
+
+**Próxima sesión**:
+- Probar en un teléfono real; si el navegador in-app de Instagram bloquea el
+  embed, abrir en Safari/Chrome.
+- `openspec archive add-storytelling-11s`.
 
 ### 2026-09-10 — Reel vertical para Instagram
 

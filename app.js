@@ -157,12 +157,19 @@ function fuenteArchivo(src) {
   };
 }
 
+const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+
 function cargarYT() {
   if (ytListo) return ytListo;
-  ytListo = new Promise((resolve) => {
+  ytListo = new Promise((resolve, reject) => {
     if (window.YT && window.YT.Player) return resolve();
+    const t = setTimeout(() => {
+      ytListo = null;
+      reject(new Error("YouTube API timeout"));
+    }, 10000);
     const prev = window.onYouTubeIframeAPIReady;
     window.onYouTubeIframeAPIReady = () => {
+      clearTimeout(t);
       if (prev) prev();
       resolve();
     };
@@ -186,6 +193,8 @@ async function fuenteYT(id, loop) {
   const vid = extraerIdYT(id);
   const host = el("div", "yt-oculto");
   document.body.appendChild(host);
+  let marcarListo;
+  const listo = new Promise((r) => (marcarListo = r));
   const player = new YT.Player(host, {
     videoId: vid,
     playerVars: {
@@ -197,25 +206,29 @@ async function fuenteYT(id, loop) {
       playsinline: 1,
       rel: 0,
     },
+    events: { onReady: () => marcarListo() },
   });
   let vol = 0;
   let fin = null;
   player.addEventListener("onStateChange", (e) => {
     if (e.data === 0 && fin) fin();
   });
+  await Promise.race([listo, esperar(6000)]);
   return {
     play() {
       return new Promise((resolve) => {
         try {
+          player.mute();
           player.playVideo();
         } catch {
           return resolve(false);
         }
         setTimeout(() => {
+          try { player.unMute(); } catch { /* noop */ }
           let estado = -1;
           try { estado = player.getPlayerState(); } catch { estado = -1; }
           resolve(estado === 1 || estado === 3);
-        }, 800);
+        }, 700);
       });
     },
     pause() { try { player.pauseVideo(); } catch { /* aún no listo */ } },
@@ -318,11 +331,19 @@ async function desbloquear() {
   ocultarPista();
   actualizarBoton();
   if (!sonidoActivo) return;
+  let ok = true;
   if (musica) {
-    const ok = await musica.play();
+    ok = await musica.play();
     fadeFuente(musica, escenaDiscurso ? VOL_MUSICA_DUCK : VOL_MUSICA, ok ? 900 : 0);
   }
-  if (escenaDiscurso) reproducirDiscurso(escenaDiscurso);
+  if (escenaDiscurso) ok = (await reproducirDiscurso(escenaDiscurso)) || ok;
+  if (!ok) {
+    desbloqueado = false;
+    document.body.classList.remove("sonido-on");
+    mostrarPista();
+    armarDesbloqueo();
+  }
+  actualizarBoton();
   actualizarNotas();
 }
 
@@ -347,6 +368,7 @@ function mostrarEntrada() {
     si.addEventListener("click", () => {
       sonidoActivo = true;
       document.body.classList.add("sonido-on");
+      if (musica) musica.play();
       desbloquear();
       cerrarEntrada();
     });
@@ -396,20 +418,28 @@ async function montarSonido() {
   botonSonido.hidden = true;
   document.body.appendChild(botonSonido);
 
-  if (YT_MUSICA) {
-    musica = await fuenteYT(YT_MUSICA, true);
-  } else if (await archivoExiste("audio/musica.mp3")) {
-    musica = fuenteArchivo("audio/musica.mp3");
+  try {
+    if (YT_MUSICA) {
+      musica = await fuenteYT(YT_MUSICA, true);
+    } else if (await archivoExiste("audio/musica.mp3")) {
+      musica = fuenteArchivo("audio/musica.mp3");
+    }
+  } catch {
+    musica = null;
   }
 
   for (const sec of ESCENAS.querySelectorAll(".scene")) {
     const cfg = sec._audioConfig;
     if (!cfg) continue;
     let fuente = null;
-    if (cfg.yt) {
-      fuente = await fuenteYT(cfg.yt, false);
-    } else if (cfg.file && (await archivoExiste(cfg.file))) {
-      fuente = fuenteArchivo(cfg.file);
+    try {
+      if (cfg.yt) {
+        fuente = await fuenteYT(cfg.yt, false);
+      } else if (cfg.file && (await archivoExiste(cfg.file))) {
+        fuente = fuenteArchivo(cfg.file);
+      }
+    } catch {
+      fuente = null;
     }
     if (fuente) {
       fuente.onEnd(() => {
