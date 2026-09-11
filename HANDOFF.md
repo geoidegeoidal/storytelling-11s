@@ -7,10 +7,15 @@
 
 ## Sesión actual / próxima
 
-**Estado**: Sitio completo y publicado. Se agregó un **modo in-app** para que el
-audio funcione dentro del navegador de Instagram (reproductor de YouTube
-visible con controles nativos). Falta validar en teléfono real y archivar el
-change de openspec.
+**Estado**: Sitio completo, con reel, textos, animaciones y audio por embeds de
+YouTube. En el navegador in-app de Instagram se muestra un **aviso** (no se
+reproduce: los WebView no permiten controlar YouTube ni abrir el navegador
+externo) con flecha al menú "Abrir en Chrome/Safari". Pendiente: validar en
+teléfono real y `openspec archive add-storytelling-11s`.
+
+- Repo: https://github.com/geoidegeoidal/storytelling-11s
+- Sitio: https://geoidegeoidal.github.io/storytelling-11s/
+- Reel: `reel-11s.mp4` (raíz, no versionado)
 
 ## Historial de sesiones
 
