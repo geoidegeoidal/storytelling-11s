@@ -582,6 +582,13 @@ body.sonido-on .scene__discurso::before { animation: pulse 1.7s ease-out infinit
 .entrada__btn--si .sonido__icono i:nth-child(2) { animation-delay: 0.15s; }
 .entrada__btn--si .sonido__icono i:nth-child(3) { animation-delay: 0.3s; }
 .entrada__btn--si .sonido__icono i:nth-child(4) { animation-delay: 0.45s; }
+.entrada__pasos {
+  margin: 1.5rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.entrada__pasos[hidden] { display: none; }
 .entrada__nota {
   margin: 1.6rem 0 0;
   font-family: var(--mono);

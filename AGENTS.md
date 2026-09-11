@@ -85,8 +85,11 @@ Instagram (cuenta de conmapas) y los relatos que los acompañan.
   User-Agent (`EN_APP`). Esos navegadores no permiten controlar YouTube, así que
   **no se intenta reproducir**: la pantalla de entrada pasa a un **aviso** que
   recomienda abrir el enlace en Chrome, Edge o Safari. "Abrir en el navegador"
-  copia el enlace al portapapeles e intenta abrirlo afuera; "Seguir sin sonido"
-  cierra el aviso. En navegadores normales el audio funciona como siempre.
+  copia el enlace al portapapeles (con fallback `execCommand`), intenta abrirlo
+  afuera (en Android con el esquema `intent://…package=com.android.chrome`) y,
+  si no se abre, muestra los pasos para abrirlo desde el menú de la app. "Seguir
+  sin sonido" cierra el aviso. No se puede forzar el navegador externo por
+  código (limitación de los WebView), por eso el copiado + los pasos.
 - El discurso suena al centrar su escena y **sigue hasta el final** (no se pausa
   al scrollear); baja la música (duck) mientras dura y la música vuelve al
   terminar (o al mutear).
