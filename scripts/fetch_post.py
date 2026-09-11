@@ -84,7 +84,7 @@ def save_timeline(entries):
     )
 
 
-def process(url):
+def process(url, refresh=False):
     import instaloader
 
     sc = shortcode(url)
@@ -104,15 +104,18 @@ def process(url):
 
     entries = load_timeline()
     old = next((e for e in entries if e.get("shortcode") == sc), {})
+    caption = post.caption or ""
     entry = {
         "shortcode": sc,
         "url": f"https://www.instagram.com/p/{sc}/",
         "fecha": post.date_utc.isoformat(),
         "hora": old.get("hora", ""),
-        "titulo": old.get("titulo") or titulo_from(post.caption),
-        "relato": post.caption or "",
+        "titulo": titulo_from(caption) if refresh else (old.get("titulo") or titulo_from(caption)),
+        "relato": caption if refresh else (old.get("relato") or caption),
         "imagenes": paths,
     }
+    if not refresh and old.get("audio"):
+        entry["audio"] = old["audio"]
     entries = [e for e in entries if e.get("shortcode") != sc]
     entries.append(entry)
     entries.sort(key=lambda e: e.get("fecha") or "")
@@ -124,12 +127,17 @@ def main():
     fix_ca_bundle()
     ap = argparse.ArgumentParser(description="Rescata posts de Instagram al timeline.")
     ap.add_argument("urls", nargs="+", help="URLs de publicaciones de Instagram")
+    ap.add_argument(
+        "--refresh",
+        action="store_true",
+        help="sobrescribe el relato y el título ya editados con el caption original",
+    )
     args = ap.parse_args()
 
     failed = 0
     for url in args.urls:
         try:
-            e = process(url)
+            e = process(url, refresh=args.refresh)
             print(f"OK  {e['shortcode']}  {len(e['imagenes'])} img  {e['titulo'][:60]}")
         except Exception as ex:
             failed += 1

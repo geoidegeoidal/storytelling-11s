@@ -12,13 +12,19 @@ Instagram (cuenta de conmapas) y los relatos que los acompañan.
 - `scripts/` — pipeline de rescate de posts de Instagram (autoría, no runtime).
 - `data/timeline.json` — fuente única de contenido del sitio.
 - `assets/maps/` — imágenes de los mapas (`<shortcode>_<n>.jpg`).
+- `audio/` — pistas opcionales: `musica.mp3` (fondo) y `ultimo-discurso.mp3`
+  (referenciado en `timeline.json`). No se versionan audios con derechos.
 - `index.html`, `styles.css`, `app.js` — sitio estático (HTML/CSS/JS vanilla).
 
 ## Convenciones
 
 - Sin framework, sin build step, sin backend. Solo archivos estáticos.
 - El contenido se edita en `data/timeline.json`; no hardcodear relatos en HTML/JS.
-- Relatos verbatim (saltos de línea y emojis preservados).
+- Los relatos son textos editados a mano: sin emojis ni hashtags. El rescate
+  **no** los pisa (preserva `relato`/`titulo`/`hora`/`audio`); `--refresh` fuerza
+  volver al caption original de Instagram.
+- El sitio muestra solo la primera imagen de cada entrada (el mapa); la segunda
+  de los carruseles es la tarjeta de texto que duplica el relato.
 - Todo en español.
 
 ## Trampas resueltas
@@ -40,9 +46,21 @@ Instagram (cuenta de conmapas) y los relatos que los acompañan.
 
 - Instalar deps: `python -m venv .venv; .\.venv\Scripts\python.exe -m pip install instaloader`
 - Rescate: `.\.venv\Scripts\python.exe scripts\fetch_post.py <url> [<url> ...]`
+- Rescate forzando caption original: agregar `--refresh`
 - Self-check del rescate: `.\.venv\Scripts\python.exe scripts\fetch_post.py --demo`
 - Validar spec: `openspec validate add-storytelling-11s`
 - Servir local: `.\.venv\Scripts\python.exe -m http.server` en la raíz.
+
+## Audio
+
+- El sitio tiene un control de sonido flotante y reproduce un audio por escena
+  (`audio` en la entrada del timeline) al llegar a ella.
+- Archivos esperados: `audio/musica.mp3` (fondo, loop) y, para el discurso,
+  `audio/ultimo-discurso.mp3`. Si no existen, el control y la nota se ocultan
+  solos (no rompen la página).
+- **No se versionan audios con derechos.** La música (p. ej. Nueva Canción
+  Chilena / Víctor Jara) y las grabaciones del discurso son obras protegidas:
+  el usuario debe aportar archivos propios o con licencia. No commitear.
 
 ## Publicación
 

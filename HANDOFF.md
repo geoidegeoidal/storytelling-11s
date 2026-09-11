@@ -7,11 +7,41 @@
 
 ## Sesión actual / próxima
 
-**Estado**: Rediseñado como storymap scrollytelling y publicado en GitHub Pages:
-https://geoidegeoidal.github.io/storytelling-11s/ (verificado con screenshots
-headless: portada, escena desktop y móvil). Falta archivar el change de openspec.
+**Estado**: Textos reescritos (sin emojis/hashtags), animaciones y sistema de
+audio agregados. Publicado en GitHub Pages. El audio queda inactivo hasta que
+el usuario aporte `audio/musica.mp3` y `audio/ultimo-discurso.mp3` (obras con
+derechos: no se versionan). Falta archivar el change de openspec.
 
 ## Historial de sesiones
+
+### 2026-09-10 — Textos, animaciones y audio
+
+**Objetivo**: Mejorar los textos, sacar emojis, sumar animaciones y agregar
+música de fondo + el discurso de Allende en su escena.
+
+**Hecho**:
+- `data/timeline.json`: 11 relatos reescritos (prosa limpia, sin emojis ni
+  hashtags); título de la intro y del cierre acortados; campo `audio` en la
+  entrada del último discurso.
+- `app.js`: control de sonido flotante (música de fondo en loop + fade/duck),
+  reproducción del discurso al entrar a la escena y pausa al salir (vía
+  IntersectionObserver), HUD con animación al cambiar de hora, reveal por
+  bloques. El control y la nota se ocultan si los archivos no existen.
+- `styles.css`: Ken Burns en la portada, entrada escalonada del texto, regla
+  que se dibuja, media que escala, ecualizador animado, `prefers-reduced-motion`.
+- `scripts/fetch_post.py`: ya no pisa `relato`/`audio` editados (`--refresh` para forzar).
+- Verificado con Chrome headless (portada, escena + nota de discurso + botón).
+- `audio/` creado (con `.gitkeep`).
+
+**Decidido**:
+- No se incluye música ni discurso con derechos. El sistema funciona con
+  archivos que aporte el usuario; sin ellos, la UI de audio no aparece.
+- El discurso se dispara al centrar la escena (no autoplay: requiere que el
+  usuario active el sonido una vez).
+
+**Próxima sesión**:
+- Que el usuario agregue los audios y validar reproducción/ducking en navegador.
+- `openspec archive add-storytelling-11s` cuando se cierre el change.
 
 ### 2026-09-10 — Rediseño: storymap scrollytelling
 
