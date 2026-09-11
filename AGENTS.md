@@ -51,6 +51,16 @@ Instagram (cuenta de conmapas) y los relatos que los acompañan.
 - Validar spec: `openspec validate add-storytelling-11s`
 - Servir local: `.\.venv\Scripts\python.exe -m http.server` en la raíz.
 
+## Reel / video
+
+- `scripts/record_reel.mjs` graba un **reel vertical 1080×1920** recorriendo el
+  sitio (scroll con easing 0→final). Sin dependencias: usa el WebSocket nativo
+  de Node 22 + Chrome DevTools Protocol.
+- Requiere Chrome y un binario de `ffmpeg` (p. ej. el de `ffmpeg-static`).
+- Ejemplo: `node scripts/record_reel.mjs --url http://localhost:8000/ --out reel-11s.mp4 --ffmpeg <ruta>\ffmpeg.exe --dur 24`
+- El video sale **sin audio** (se agrega la música en la app de Instagram).
+- El mp4 no se versiona (ver `.gitignore`).
+
 ## Audio
 
 - El sitio tiene un control de sonido flotante y reproduce un audio por escena

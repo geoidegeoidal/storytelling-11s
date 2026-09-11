@@ -4,3 +4,5 @@ __pycache__/
 venv/
 .instaloader/
 *.session
+reel-*.mp4
+node_modules/

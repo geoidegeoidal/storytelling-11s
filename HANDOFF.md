@@ -7,14 +7,35 @@
 
 ## Sesión actual / próxima
 
-**Estado**: Textos reescritos, animaciones suaves y audio con embeds de YouTube
-(música `6TvCfFvPdWs`, discurso `kd0v4WKPKGI`). Al abrir hay una **pantalla de
-entrada** ("Entrar con sonido" / "Entrar en silencio") que resuelve el gesto
-para el autoplay. El discurso arranca en su mapa y sigue hasta el final, con la
-música en duck. Publicado en GitHub Pages. Falta validar en navegador real y
-archivar el change de openspec.
+**Estado**: Sitio completo y publicado (textos, animaciones, pantalla de entrada
+de audio y embeds de YouTube). Además se grabó un **reel vertical** 1080×1920
+(`reel-11s.mp4` en la raíz, no versionado) con `scripts/record_reel.mjs`. Falta
+validar en navegador real y archivar el change de openspec.
 
 ## Historial de sesiones
+
+### 2026-09-10 — Reel vertical para Instagram
+
+**Objetivo**: Generar un video vertical recorriendo el sitio para subir a
+Instagram.
+
+**Hecho**:
+- `scripts/record_reel.mjs`: graba el recorrido con Chrome DevTools Protocol
+  (WebSocket nativo de Node 22, sin dependencias), captura frames por
+  `Page.captureScreenshot` y codifica con ffmpeg.
+- Salida `reel-11s.mp4`: 1080×1920, 30 fps, 28,5 s, SAR 1:1, ~39 MB. Oculta la
+  pantalla de entrada, el botón de sonido y la pista durante la grabación.
+- `.gitignore`: `reel-*.mp4`.
+
+**Decidido**:
+- El video sale **sin audio** (música/discurso no se empaquetan por derechos);
+  se agrega en la app de Instagram.
+- ffmpeg se usó desde un binario estático temporal (`ffmpeg-static`), no como
+  dependencia del repo.
+
+**Próxima sesión**:
+- Re-grabar con más duración o muxear audio propio si el usuario lo pide.
+- `openspec archive add-storytelling-11s`.
 
 ### 2026-09-10 — Textos, animaciones y audio
 
