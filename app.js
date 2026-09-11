@@ -12,6 +12,11 @@ const VOL_MUSICA = 0.2;
 const VOL_MUSICA_DUCK = 0.05;
 const VOL_DISCURSO = 0.95;
 
+/* Navegador dentro de apps (Instagram, Facebook, TikTok…): no permite
+   controlar YouTube por código, así que ahí mostramos un reproductor visible
+   para que la persona toque el play del propio YouTube. */
+const EN_APP = /Instagram|FBAN|FBAV|FB_IAB|Messenger|TikTok|Line\//i.test(navigator.userAgent);
+
 let entradas = [];
 let musica = null;
 let sonidoActivo = true;
@@ -22,6 +27,11 @@ let botonSonido = null;
 let pistaSonido = null;
 let escenaDiscurso = null;
 let ytListo = null;
+let idMusica = YT_MUSICA;
+let idDiscurso = "";
+let cardYt = null;
+let cardHost = null;
+let cardLabel = null;
 
 function mostrarAviso(msg) {
   AVISO.textContent = msg;
@@ -83,8 +93,12 @@ function escena(e, flip) {
   sec.id = e.shortcode;
   sec.dataset.hora = e.hora || "";
 
-  if (e.audio_embed) sec._audioConfig = { yt: e.audio_embed };
-  else if (e.audio) sec._audioConfig = { file: e.audio };
+  if (e.audio_embed) {
+    sec._audioConfig = { yt: e.audio_embed };
+    sec._discursoId = e.audio_embed;
+  } else if (e.audio) {
+    sec._audioConfig = { file: e.audio };
+  }
 
   const texto = el("div", "scene__text");
   const meta = el("p", "scene__meta");
@@ -272,6 +286,10 @@ function setHora(txt) {
 function actualizarNotas() {
   document.querySelectorAll(".scene__discurso").forEach((n) => {
     const sec = n.closest(".scene");
+    if (EN_APP) {
+      n.textContent = "Discurso · toca ▶ en el reproductor";
+      return;
+    }
     const suena = sonidoActivo && desbloqueado && escenaDiscurso === sec;
     n.textContent = suena
       ? "Reproduciendo el último discurso"
@@ -283,6 +301,11 @@ function actualizarNotas() {
 
 function actualizarBoton() {
   if (!botonSonido) return;
+  if (EN_APP) {
+    botonSonido.hidden = !cardHost;
+    botonSonido.classList.toggle("is-on", !!cardHost && !cardHost.hidden);
+    return;
+  }
   botonSonido.hidden = !(musica || hayFuenteEscena);
   botonSonido.classList.toggle("is-on", sonidoActivo && desbloqueado);
   botonSonido.setAttribute("aria-pressed", String(sonidoActivo));
@@ -368,6 +391,11 @@ function mostrarEntrada() {
     si.addEventListener("click", () => {
       sonidoActivo = true;
       document.body.classList.add("sonido-on");
+      if (EN_APP) {
+        mostrarCard();
+        cerrarEntrada();
+        return;
+      }
       if (musica) musica.play();
       desbloquear();
       cerrarEntrada();
@@ -407,15 +435,20 @@ function toggleSonido() {
   actualizarNotas();
 }
 
-async function montarSonido() {
-  botonSonido = el("button", "sonido");
-  botonSonido.type = "button";
-  botonSonido.setAttribute("aria-pressed", "true");
-  botonSonido.innerHTML =
+function crearBotonSonido() {
+  const b = el("button", "sonido");
+  b.type = "button";
+  b.setAttribute("aria-pressed", "true");
+  b.innerHTML =
     '<span class="sonido__icono" aria-hidden="true"><i></i><i></i><i></i><i></i></span>' +
     '<span class="sonido__texto">Sonido</span>';
+  b.hidden = true;
+  return b;
+}
+
+async function montarSonido() {
+  botonSonido = crearBotonSonido();
   botonSonido.addEventListener("click", toggleSonido);
-  botonSonido.hidden = true;
   document.body.appendChild(botonSonido);
 
   try {
@@ -458,6 +491,57 @@ async function montarSonido() {
   actualizarBoton();
 }
 
+function mostrarCard() {
+  if (cardHost) cardHost.hidden = false;
+}
+
+async function montarSonidoApp() {
+  document.body.classList.add("in-app");
+  botonSonido = crearBotonSonido();
+  botonSonido.querySelector(".sonido__texto").textContent = "Reproductor";
+  botonSonido.hidden = !cardHost;
+  botonSonido.addEventListener("click", () => {
+    if (cardHost) {
+      cardHost.hidden = !cardHost.hidden;
+      actualizarBoton();
+    }
+  });
+  document.body.appendChild(botonSonido);
+
+  cardHost = el("div", "yt-card");
+  cardLabel = el("p", "yt-card__label", "Música");
+  const frame = el("div", "yt-card__frame");
+  const slot = el("div");
+  frame.appendChild(slot);
+  const hint = el("p", "yt-card__hint", "Toca ▶ en el reproductor para escuchar");
+  const cerrar = el("button", "yt-card__close", "×");
+  cerrar.type = "button";
+  cerrar.setAttribute("aria-label", "Cerrar reproductor");
+  cerrar.addEventListener("click", () => {
+    cardHost.hidden = true;
+    actualizarBoton();
+  });
+  cardHost.append(cardLabel, frame, hint, cerrar);
+  cardHost.hidden = true;
+  document.body.appendChild(cardHost);
+
+  try {
+    await cargarYT();
+    cardYt = new YT.Player(slot, {
+      videoId: idMusica || idDiscurso,
+      playerVars: { controls: 1, playsinline: 1, rel: 0, modestbranding: 1 },
+    });
+  } catch {
+    cardYt = null;
+    mostrarAviso(
+      "Este navegador no permite reproducir YouTube. Abre el enlace en Safari o Chrome para escuchar."
+    );
+  }
+
+  actualizarBoton();
+  actualizarNotas();
+}
+
 /* ---------- Observers ---------- */
 
 function activarReveal() {
@@ -486,6 +570,14 @@ function activarReveal() {
         if (!en.isIntersecting) return;
         const sec = en.target;
         if (sec.dataset.hora) setHora(sec.dataset.hora);
+        if (EN_APP) {
+          if (sec._discursoId && cardYt) {
+            try { cardYt.loadVideoById(sec._discursoId); } catch { /* noop */ }
+            if (cardLabel) cardLabel.textContent = "Último discurso de Allende";
+            mostrarCard();
+          }
+          return;
+        }
         if (sec._fuente) {
           if (sonidoActivo && escenaDiscurso !== sec) {
             if (escenaDiscurso) pausarDiscurso(escenaDiscurso);
@@ -563,6 +655,8 @@ async function iniciar() {
   }
   if (entradas.length === 0) return;
 
+  idDiscurso = (entradas.find((e) => e.audio_embed) || {}).audio_embed || "";
+
   portada(entradas[0]);
   ESCENAS.appendChild(intro(entradas[0]));
 
@@ -573,10 +667,19 @@ async function iniciar() {
 
   activarReveal();
   activarProgreso();
-  await montarSonido();
 
-  if (musica || hayFuenteEscena) mostrarEntrada();
-  else if (ENTRADA) ENTRADA.remove();
+  if (EN_APP) {
+    if (idMusica || idDiscurso) {
+      await montarSonidoApp();
+      mostrarEntrada();
+    } else if (ENTRADA) {
+      ENTRADA.remove();
+    }
+  } else {
+    await montarSonido();
+    if (musica || hayFuenteEscena) mostrarEntrada();
+    else if (ENTRADA) ENTRADA.remove();
+  }
 
   if (location.hash) {
     const destino = document.getElementById(location.hash.slice(1));

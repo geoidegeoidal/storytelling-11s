@@ -81,6 +81,13 @@ Instagram (cuenta de conmapas) y los relatos que los acompañan.
 - Al abrir, si hay audio, aparece una **pantalla de entrada** ("Entrar con
   sonido" / "Entrar en silencio"). El clic en la primera es el gesto que
   desbloquea el audio y arranca la música; la segunda entra muteado.
+- **Modo in-app** (navegador de Instagram/Facebook/TikTok): se detecta por
+  User-Agent (`EN_APP`). Esos navegadores no permiten controlar YouTube por
+  código, así que se muestra un **reproductor visible** (`.yt-card`, con
+  controles nativos) para que la persona toque el play del propio YouTube; sirve
+  para la música y, al llegar a su escena, se cambia al discurso
+  (`loadVideoById`). En in-app no se usa el reproductor oculto ni el desbloqueo
+  programático.
 - El discurso suena al centrar su escena y **sigue hasta el final** (no se pausa
   al scrollear); baja la música (duck) mientras dura y la música vuelve al
   terminar (o al mutear).

@@ -7,13 +7,33 @@
 
 ## Sesión actual / próxima
 
-**Estado**: Sitio completo y publicado (textos, animaciones, pantalla de entrada
-de audio y embeds de YouTube). Se endureció el audio para **móvil** (onReady
-antes del toque, mute→play→unmute de iOS, fallback con segundo toque) y se
-corrigió el desborde del overlay en pantallas chicas. Falta validar en teléfono
-real y archivar el change de openspec.
+**Estado**: Sitio completo y publicado. Se agregó un **modo in-app** para que el
+audio funcione dentro del navegador de Instagram (reproductor de YouTube
+visible con controles nativos). Falta validar en teléfono real y archivar el
+change de openspec.
 
 ## Historial de sesiones
+
+### 2026-09-10 — Modo in-app (navegador de Instagram)
+
+**Objetivo**: Que la música/discurso funcione en el navegador interno de
+Instagram (y similares).
+
+**Hecho**:
+- `EN_APP` (detección por User-Agent: Instagram/FB/TikTok/Line).
+- `montarSonidoApp()`: crea un **reproductor visible** `.yt-card` (16:9, con
+  controles de YouTube) que la persona activa con el play nativo. La música usa
+  el video configurado; al centrar la escena del discurso, `loadVideoById`
+  cambia al discurso. Botón "Reproductor" (arriba en in-app) para mostrar/ocultar.
+- Trampa: `new YT.Player(el)` **reemplaza** ese elemento por el iframe; para
+  conservar el marco 16:9 hay que pasar un div interno (slot) y mantener el
+  contenedor.
+- Verificado con Chrome emulando UA de Instagram + viewport 390×844: overlay,
+  tarjeta y cambio de video correctos.
+
+**Próxima sesión**:
+- Probar en un teléfono real dentro del navegador de Instagram.
+- `openspec archive add-storytelling-11s`.
 
 ### 2026-09-10 — Audio en móvil + overlay responsive
 

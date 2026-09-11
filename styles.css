@@ -439,6 +439,72 @@ body.sonido-on .scene__discurso::before { animation: pulse 1.7s ease-out infinit
   z-index: 0;
   pointer-events: none;
 }
+
+/* Modo in-app (Instagram/Facebook): reproductor visible con controles nativos */
+.yt-card {
+  position: fixed;
+  left: clamp(0.8rem, 3vw, 1.5rem);
+  bottom: clamp(0.8rem, 3vw, 1.5rem);
+  z-index: 56;
+  width: min(320px, 78vw);
+  padding: 0.7rem;
+  background: rgba(16, 15, 20, 0.94);
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.55);
+}
+.yt-card[hidden] { display: none; }
+.yt-card__label {
+  margin: 0 0 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.yt-card__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 7px;
+  overflow: hidden;
+  background: #000;
+}
+.yt-card__frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.yt-card__hint {
+  margin: 0.55rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.yt-card__close {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.yt-card__close:hover { color: var(--accent); }
+
+/* En in-app el botón de sonido va arriba, para no chocar con la tarjeta */
+body.in-app .sonido {
+  top: 2.5rem;
+  right: clamp(0.8rem, 3vw, 1.5rem);
+  bottom: auto;
+}
 .sonido {
   position: fixed;
   right: clamp(1rem, 3vw, 2rem);
