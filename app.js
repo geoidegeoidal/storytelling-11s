@@ -5,8 +5,8 @@ const HUD_HORA = document.getElementById("hud-hora");
 const ENTRADA = document.getElementById("entrada");
 const CUENTA = "@conmapas";
 
-/* Música de fondo: pegá el link de YouTube o el ID del video.
-   Dejá "" para no usar música (o para usar audio/musica.mp3 si existe). */
+/* Música de fondo: pega el link de YouTube o el ID del video.
+   Deja "" para no usar música (o para usar audio/musica.mp3 si existe). */
 const YT_MUSICA = "6TvCfFvPdWs";
 const VOL_MUSICA = 0.2;
 const VOL_MUSICA_DUCK = 0.05;

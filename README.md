@@ -132,7 +132,7 @@ de Instagram). Ajustable con `--hold` (pausa por escena) y `--trans` (transició
 
 ## Cómo citar
 
-Si usás o referenciás este trabajo, podés citarlo así (reemplazá la fecha de consulta):
+Si usas o referencias este trabajo, puedes citarlo así (reemplaza la fecha de consulta):
 
 **Storytelling (sitio):**
 
@@ -159,8 +159,8 @@ Si usás o referenciás este trabajo, podés citarlo así (reemplazá la fecha d
 }
 ```
 
-En trabajos académicos, si citás **hechos o relatos** del especial, acreditá a
-ConMapas / Jorge Ulloa; si citás **el sitio o su código**, usá alguna de las
+En trabajos académicos, si citas **hechos o relatos** del especial, acredita a
+ConMapas / Jorge Ulloa; si citas **el sitio o su código**, usa alguna de las
 referencias de arriba.
 
 ---
