@@ -55,12 +55,13 @@ Instagram (cuenta de conmapas) y los relatos que los acompañan.
 
 - El sitio tiene un control de sonido flotante y reproduce un audio por escena
   (`audio` en la entrada del timeline) al llegar a ella.
-- Archivos esperados: `audio/musica.mp3` (fondo, loop) y, para el discurso,
-  `audio/ultimo-discurso.mp3`. Si no existen, el control y la nota se ocultan
-  solos (no rompen la página).
-- **No se versionan audios con derechos.** La música (p. ej. Nueva Canción
-  Chilena / Víctor Jara) y las grabaciones del discurso son obras protegidas:
-  el usuario debe aportar archivos propios o con licencia. No commitear.
+- Dos formas de fuente, sin romper la estética:
+  - **Embed de YouTube** (reproductor oculto + control propio): música en la
+    constante `YT_MUSICA` (ID de video) de `app.js`; discurso en el campo
+    `audio_embed` de la entrada. Vía recomendada por derechos de autor.
+  - **Archivo local**: `audio/musica.mp3` (fondo, loop) y `audio/ultimo-discurso.mp3`.
+- Si no hay fuente configurada, el control y la nota se ocultan solos.
+- No se versionan audios con derechos; el embed delega la licencia en YouTube.
 
 ## Publicación
 

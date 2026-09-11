@@ -4,7 +4,9 @@ const BARRA = document.getElementById("progress");
 const HUD_HORA = document.getElementById("hud-hora");
 const CUENTA = "@conmapas";
 
-const MUSICA = "audio/musica.mp3";
+/* Música de fondo: pegá el ID del video de YouTube, o dejá "" para usar
+   audio/musica.mp3 si existe. Ej: const YT_MUSICA = "dQw4w9WgXcQ"; */
+const YT_MUSICA = "";
 const VOL_MUSICA = 0.2;
 const VOL_MUSICA_DUCK = 0.05;
 const VOL_DISCURSO = 0.95;
@@ -14,6 +16,7 @@ let musica = null;
 let sonidoActivo = false;
 let botonSonido = null;
 let escenaDiscurso = null;
+let ytListo = null;
 
 function mostrarAviso(msg) {
   AVISO.textContent = msg;
@@ -75,6 +78,9 @@ function escena(e, flip) {
   sec.id = e.shortcode;
   sec.dataset.hora = e.hora || "";
 
+  if (e.audio_embed) sec._audioConfig = { yt: e.audio_embed };
+  else if (e.audio) sec._audioConfig = { file: e.audio };
+
   const texto = el("div", "scene__text");
   const meta = el("p", "scene__meta");
   const hora = el("span", "scene__hora");
@@ -86,15 +92,10 @@ function escena(e, flip) {
   meta.append(hora, fuenteLink(e));
   texto.append(meta);
 
-  if (e.audio) {
+  if (sec._audioConfig) {
     const nota = el("p", "scene__discurso", "Discurso · activá el sonido");
     nota.hidden = true;
     texto.appendChild(nota);
-    const a = document.createElement("audio");
-    a.src = e.audio;
-    a.preload = "none";
-    a.volume = 0;
-    sec._audio = a;
   }
 
   texto.append(el("h2", "scene__title", e.titulo), parrafos(e.relato));
@@ -130,19 +131,90 @@ function portada(e) {
   if (bg && e.imagenes[0]) bg.style.backgroundImage = `url("${e.imagenes[0]}")`;
 }
 
-/* ---------- Audio ---------- */
+/* ---------- Fuentes de audio (archivo o embed de YouTube) ---------- */
 
-function fade(audio, destino, ms) {
-  if (!audio) return;
-  clearInterval(audio._fade);
-  const inicio = audio.volume;
-  const t0 = performance.now();
-  audio._fade = setInterval(() => {
-    const k = Math.min(1, (performance.now() - t0) / ms);
-    audio.volume = Math.max(0, Math.min(1, inicio + (destino - inicio) * k));
-    if (k >= 1) clearInterval(audio._fade);
-  }, 40);
+function fuenteArchivo(src) {
+  const a = new Audio(src);
+  a.preload = "none";
+  a.volume = 0;
+  let vol = 0;
+  return {
+    play() { a.play().catch(() => {}); },
+    pause() { a.pause(); },
+    vol(v) { vol = Math.max(0, Math.min(1, v)); a.volume = vol; },
+    get v() { return vol; },
+    onEnd(cb) { a.addEventListener("ended", cb); },
+  };
 }
+
+function cargarYT() {
+  if (ytListo) return ytListo;
+  ytListo = new Promise((resolve) => {
+    if (window.YT && window.YT.Player) return resolve();
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      if (prev) prev();
+      resolve();
+    };
+    const s = document.createElement("script");
+    s.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(s);
+  });
+  return ytListo;
+}
+
+async function fuenteYT(id, loop) {
+  await cargarYT();
+  const host = el("div", "yt-oculto");
+  document.body.appendChild(host);
+  const player = new YT.Player(host, {
+    videoId: id,
+    playerVars: {
+      autoplay: 0,
+      controls: 0,
+      disablekb: 1,
+      loop: loop ? 1 : 0,
+      playlist: loop ? id : undefined,
+      playsinline: 1,
+      rel: 0,
+    },
+  });
+  let vol = 0;
+  let fin = null;
+  player.addEventListener("onStateChange", (e) => {
+    if (e.data === 0 && fin) fin();
+  });
+  return {
+    play() { try { player.playVideo(); } catch { /* aún no listo */ } },
+    pause() { try { player.pauseVideo(); } catch { /* aún no listo */ } },
+    vol(v) { vol = Math.max(0, Math.min(1, v)); try { player.setVolume(Math.round(vol * 100)); } catch { /* aún no listo */ } },
+    get v() { return vol; },
+    onEnd(cb) { fin = cb; },
+  };
+}
+
+function fadeFuente(f, destino, ms) {
+  if (!f) return;
+  clearInterval(f._fade);
+  const inicio = f.v;
+  const t0 = performance.now();
+  f._fade = setInterval(() => {
+    const k = Math.min(1, (performance.now() - t0) / ms);
+    f.vol(inicio + (destino - inicio) * k);
+    if (k >= 1) clearInterval(f._fade);
+  }, 50);
+}
+
+async function archivoExiste(url) {
+  try {
+    const r = await fetch(url, { method: "HEAD" });
+    return r.ok;
+  } catch {
+    return false;
+  }
+}
+
+/* ---------- Control de sonido ---------- */
 
 function setHora(txt) {
   if (!txt || HUD_HORA.textContent === txt) return;
@@ -154,8 +226,9 @@ function setHora(txt) {
 
 function actualizarNotas() {
   document.querySelectorAll(".scene__discurso").forEach((n) => {
-    const a = n.closest(".scene")._audio;
-    const suena = sonidoActivo && a && !a.paused && a.currentTime > 0;
+    const sec = n.closest(".scene");
+    const f = sec._fuente;
+    const suena = sonidoActivo && f && escenaDiscurso === sec;
     n.textContent = !sonidoActivo
       ? "Discurso · activá el sonido"
       : suena
@@ -165,22 +238,21 @@ function actualizarNotas() {
 }
 
 function reproducirDiscurso(sec) {
-  const a = sec && sec._audio;
-  if (!a) return;
-  if (a.readyState === 0) a.load();
-  a.play().catch(() => {});
-  fade(a, VOL_DISCURSO, 900);
-  if (musica) fade(musica, VOL_MUSICA_DUCK, 900);
+  const f = sec && sec._fuente;
+  if (!f) return;
+  f.play();
+  fadeFuente(f, VOL_DISCURSO, 900);
+  if (musica) fadeFuente(musica, VOL_MUSICA_DUCK, 900);
   actualizarNotas();
 }
 
 function pausarDiscurso(sec) {
-  const a = sec && sec._audio;
-  if (a) {
-    fade(a, 0, 500);
-    setTimeout(() => a.pause(), 520);
+  const f = sec && sec._fuente;
+  if (f) {
+    fadeFuente(f, 0, 500);
+    setTimeout(() => f.pause(), 520);
   }
-  if (musica && sonidoActivo) fade(musica, VOL_MUSICA, 700);
+  if (musica && sonidoActivo) fadeFuente(musica, VOL_MUSICA, 700);
   actualizarNotas();
 }
 
@@ -194,24 +266,15 @@ function toggleSonido() {
     : "Activar sonido";
   if (sonidoActivo) {
     if (musica) {
-      musica.play().catch(() => {});
-      fade(musica, escenaDiscurso ? VOL_MUSICA_DUCK : VOL_MUSICA, 900);
+      musica.play();
+      fadeFuente(musica, escenaDiscurso ? VOL_MUSICA_DUCK : VOL_MUSICA, 900);
     }
     if (escenaDiscurso) reproducirDiscurso(escenaDiscurso);
   } else {
-    if (musica) fade(musica, 0, 400);
+    if (musica) fadeFuente(musica, 0, 400);
     pausarDiscurso(escenaDiscurso);
   }
   actualizarNotas();
-}
-
-async function archivoExiste(url) {
-  try {
-    const r = await fetch(url, { method: "HEAD" });
-    return r.ok;
-  } catch {
-    return false;
-  }
 }
 
 async function montarSonido() {
@@ -225,28 +288,40 @@ async function montarSonido() {
   botonSonido.hidden = true;
   document.body.appendChild(botonSonido);
 
-  const hayMusica = await archivoExiste(MUSICA);
-  if (hayMusica) {
-    musica = new Audio(MUSICA);
-    musica.loop = true;
-    musica.volume = 0;
-    musica.preload = "none";
+  let hayAudio = false;
+
+  if (YT_MUSICA) {
+    musica = await fuenteYT(YT_MUSICA, true);
+    hayAudio = true;
+  } else if (await archivoExiste("audio/musica.mp3")) {
+    musica = fuenteArchivo("audio/musica.mp3");
+    hayAudio = true;
   }
 
-  let hayDiscurso = false;
   for (const sec of ESCENAS.querySelectorAll(".scene")) {
-    if (!sec._audio) continue;
-    const ok = await archivoExiste(sec._audio.getAttribute("src"));
-    if (ok) {
+    const cfg = sec._audioConfig;
+    if (!cfg) continue;
+    let fuente = null;
+    if (cfg.yt) {
+      fuente = await fuenteYT(cfg.yt, false);
+    } else if (cfg.file && (await archivoExiste(cfg.file))) {
+      fuente = fuenteArchivo(cfg.file);
+    }
+    if (fuente) {
+      fuente.onEnd(() => {
+        if (escenaDiscurso === sec) {
+          if (musica && sonidoActivo) fadeFuente(musica, VOL_MUSICA, 900);
+          actualizarNotas();
+        }
+      });
+      sec._fuente = fuente;
       const nota = sec.querySelector(".scene__discurso");
       if (nota) nota.hidden = false;
-      hayDiscurso = true;
-    } else {
-      delete sec._audio;
+      hayAudio = true;
     }
   }
 
-  botonSonido.hidden = !(hayMusica || hayDiscurso);
+  botonSonido.hidden = !hayAudio;
   actualizarNotas();
 }
 
@@ -278,7 +353,7 @@ function activarReveal() {
         if (!en.isIntersecting) return;
         const sec = en.target;
         if (sec.dataset.hora) setHora(sec.dataset.hora);
-        if (sec._audio) {
+        if (sec._fuente) {
           if (sonidoActivo && escenaDiscurso !== sec) {
             if (escenaDiscurso) pausarDiscurso(escenaDiscurso);
             escenaDiscurso = sec;

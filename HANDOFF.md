@@ -26,21 +26,30 @@ música de fondo + el discurso de Allende en su escena.
 - `app.js`: control de sonido flotante (música de fondo en loop + fade/duck),
   reproducción del discurso al entrar a la escena y pausa al salir (vía
   IntersectionObserver), HUD con animación al cambiar de hora, reveal por
-  bloques. El control y la nota se ocultan si los archivos no existen.
+  bloques. El control y la nota se ocultan si no hay fuente.
+- **Audio por embed de YouTube**: reproductor oculto (IFrame API) + control
+  propio. Música en la constante `YT_MUSICA` de `app.js`; discurso en
+  `audio_embed` de la entrada. Fallback a archivos locales (`audio/`).
 - `styles.css`: Ken Burns en la portada, entrada escalonada del texto, regla
   que se dibuja, media que escala, ecualizador animado, `prefers-reduced-motion`.
+  Transiciones suavizadas (easing expo) y más recorrido de scroll (`140vh`) para
+  que el mapa se sostenga (sticky) al scrollear.
 - `scripts/fetch_post.py`: ya no pisa `relato`/`audio` editados (`--refresh` para forzar).
 - Verificado con Chrome headless (portada, escena + nota de discurso + botón).
 - `audio/` creado (con `.gitkeep`).
 
 **Decidido**:
-- No se incluye música ni discurso con derechos. El sistema funciona con
-  archivos que aporte el usuario; sin ellos, la UI de audio no aparece.
+- Vía de audio: **embed de YouTube** (delega la licencia en la plataforma), con
+  reproductor oculto para no romper la estética. No se versionan audios con
+  derechos; archivos locales quedan como alternativa.
 - El discurso se dispara al centrar la escena (no autoplay: requiere que el
   usuario active el sonido una vez).
+- Trampa: no usar `filter: blur` + `will-change` en la imagen del mapa; la capa
+  de composición no pinta (se ve en blanco) y es footgun. Reveal con
+  opacidad+transform.
 
 **Próxima sesión**:
-- Que el usuario agregue los audios y validar reproducción/ducking en navegador.
+- Pegar el ID de YouTube (`YT_MUSICA` y `audio_embed`) y validar en navegador.
 - `openspec archive add-storytelling-11s` cuando se cierre el change.
 
 ### 2026-09-10 — Rediseño: storymap scrollytelling
