@@ -230,10 +230,8 @@ a:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-r
 .scene.visible .scene__text > :not(.relato) { opacity: 1; transform: none; }
 
 .scene__meta {
-  display: flex;
-  align-items: baseline;
-  gap: 1.2rem;
-  margin: 0 0 0.4rem;
+  display: block;
+  margin: 0 0 0.5rem;
   transition-delay: 0.06s;
 }
 .scene__discurso { transition-delay: 0.14s; }
@@ -251,15 +249,19 @@ a:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-r
 .scene.visible .relato p:nth-child(4) { transition-delay: 0.74s; }
 
 .scene__hora {
+  display: block;
   font-family: var(--display);
   font-weight: 400;
-  font-size: clamp(3.2rem, 8vw, 6.5rem);
-  line-height: 0.9;
+  font-size: clamp(2.8rem, 8vw, 6rem);
+  line-height: 0.92;
   letter-spacing: -0.01em;
   color: var(--ink);
+  overflow-wrap: normal;
 }
 .scene__hora.vacia { display: none; }
 .scene__src {
+  display: block;
+  margin-top: 0.7rem;
   font-family: var(--mono);
   font-size: 0.66rem;
   letter-spacing: 0.2em;
