@@ -3,7 +3,9 @@
 > Storytelling web, hora a hora, del golpe de Estado en Chile. Construido a partir
 > de los mapas y relatos de **ConMapas** ([@conmapas](https://www.instagram.com/conmapas/)).
 >
-> **Sitio en vivo:** https://geoidegeoidal.github.io/storytelling-11s/
+> **Sitio en vivo:** [Abrir el relato hora a hora](https://geoidegeoidal.github.io/storytelling-11s/)
+
+[El proyecto](#qué-es) · [Ejecutar en local](#cómo-correrlo-local) · [Generar el reel](#cómo-grabar-el-reel) · [Cómo citar](#cómo-citar)
 
 ![Toma de Valparaíso, 11 de septiembre de 1973](assets/maps/C_w-Kh1urkW_1.jpg)
 
@@ -57,7 +59,8 @@ disputar el territorio del presente.
   fijo (sticky), alternando de lado.
 - **Audio**: música de fondo y el **último discurso de Allende**, que arranca en
   su escena y sigue sonando hasta el final, bajando la música (duck).
-- Un **reel vertical** 1080×1920 (`reel-11s.mp4`) para Instagram.
+- Un generador de **reel vertical** 1080×1920 para Instagram. El archivo de salida
+  (`reel-11s.mp4`) se produce localmente y no está versionado.
 - Una **bajada** para el post (`post-instagram.txt`).
 - **Diseño responsive** y cuidado de accesibilidad (foco visible, `prefers-reduced-motion`).
 
@@ -101,12 +104,24 @@ el de los propios mapas, para que el sitio y el contenido sean de la misma famil
 
 ## Cómo correrlo local
 
+Necesitas Git, Python 3 y un navegador. No hay compilación ni dependencias que
+instalar para consultar el sitio con los mapas y relatos incluidos.
+
 ```bash
-python -m http.server
-# abrir http://localhost:8000
+git clone https://github.com/geoidegeoidal/storytelling-11s.git
+cd storytelling-11s
+python -m http.server 8000 --bind 127.0.0.1
 ```
 
+Abre [http://localhost:8000/](http://localhost:8000/). Si tu sistema usa
+`python3`, úsalo en lugar de `python`. Detén el servidor con **Ctrl+C**.
+
 > Servir por HTTP es necesario: el sitio carga `data/timeline.json` con `fetch`.
+
+El audio por YouTube requiere conexión y puede necesitar un clic para activarse.
+Dentro del navegador de Instagram y otras aplicaciones se muestra un aviso:
+puedes seguir leyendo sin audio o abrir el sitio en Chrome, Edge o Safari desde
+el menú de la aplicación. El sitio no abre otro navegador automáticamente.
 
 ## Cómo rescatar un post nuevo
 
@@ -125,7 +140,7 @@ Preserva los textos editados a mano; `--refresh` fuerza volver al caption origin
 node scripts/record_reel.mjs --url http://localhost:8000/ --out reel-11s.mp4 --ffmpeg <ruta>/ffmpeg
 ```
 
-Requiere Chrome y un binario de `ffmpeg`. Sale **sin audio** (se agrega en la app
+Requiere Node.js 22, Chrome y un binario de `ffmpeg`. Sale **sin audio** (se agrega en la app
 de Instagram). Ajustable con `--hold` (pausa por escena) y `--trans` (transición).
 
 ---
